@@ -1,28 +1,28 @@
 
-package test.data.formattedMessage;
+package formatted.str;
 
 import com.googlecode.i18n.annotations.FormatType;
 import com.googlecode.i18n.annotations.FormattedMessage;
 import com.googlecode.i18n.annotations.LocalizedMessage;
 
 
-public enum ClassFormattedMes implements LocalizedMessage{
+public enum FormattedStr implements LocalizedMessage {
     
-    @FormattedMessage(type = FormatType.MESSAGE_FORMAT)
+    @FormattedMessage(type = FormatType.STRING_FORMAT)
     PARAMETR1("par.1"),
     
+    @FormattedMessage(type = FormatType.STRING_FORMAT)
     PARAMETR2("par.2"),
-    @FormattedMessage(type = FormatType.MESSAGE_FORMAT)
     
     PARAMETR3("par.3"),
     
-    @FormattedMessage(type = FormatType.MESSAGE_FORMAT)
+    @FormattedMessage(type = FormatType.STRING_FORMAT)
     PARAMETR4("par.4"),
     ;
     
     private final String id;
     
-    ClassFormattedMes(String id) {
+    FormattedStr(String id) {
         this.id = id;        
     }
 

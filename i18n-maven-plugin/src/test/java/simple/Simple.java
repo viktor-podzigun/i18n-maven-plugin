@@ -1,12 +1,12 @@
 
-package test.data.classTest;
+package simple;
 
 import java.util.ArrayList;
 import java.util.List;
 import com.googlecode.i18n.annotations.LocalizedMessage;
 
 
-public enum MyClass implements LocalizedMessage{
+public enum Simple implements LocalizedMessage{
         
     PARAMETR1("par.1"), 
     PARAMETR2("par.2"),
@@ -16,7 +16,7 @@ public enum MyClass implements LocalizedMessage{
 
     private final String id;
 
-    private MyClass(String id) {
+    private Simple(String id) {
         this.id = id;
     }
 

@@ -1,10 +1,10 @@
 
-package test.data.errorsOnly;
+package errors;
 
 import com.googlecode.i18n.annotations.LocalizedMessage;
 
 
-public enum MyEnumAddit implements LocalizedMessage{
+public enum Errors implements LocalizedMessage{
     
     PARAMETR1("par.1"),
     PARAMETR2("par.2"),
@@ -12,7 +12,7 @@ public enum MyEnumAddit implements LocalizedMessage{
     
     private final String id;
     
-    private MyEnumAddit(String id) {
+    private Errors(String id) {
         this.id = id;
     }
 

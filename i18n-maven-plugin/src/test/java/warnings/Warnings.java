@@ -1,10 +1,10 @@
 
-package test.data.warningsOnly;
+package warnings;
 
 import com.googlecode.i18n.annotations.LocalizedMessage;
 
 
-public enum MyEnum implements LocalizedMessage {
+public enum Warnings implements LocalizedMessage {
     
     PARAMETR1("par.1"),
     PARAMETR2("par.2"),
@@ -12,7 +12,7 @@ public enum MyEnum implements LocalizedMessage {
     
     private final String id;
     
-    private MyEnum(String id) {
+    private Warnings(String id) {
         this.id = id;
     }
 

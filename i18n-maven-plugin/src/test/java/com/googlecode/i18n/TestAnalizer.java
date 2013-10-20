@@ -18,26 +18,26 @@ import com.googlecode.i18n.Analizer;
 public class TestAnalizer {
 
     private static final String ROOT_PATH           = "target/testData/";
-    private static final String ERROR_PATH          = "errorsOnly";
-    private static final String WARNING_PATH        = "warningsOnly";
-    private static final String CLASS_TEST_PATH     = "classTest";
-    private static final String NOT_EXISTING_PATH   = "notExist";
-    private static final String FORMAT_STR_PATH     = "formattedString";
-    private static final String FORMAT_MES_PATH     = "formattedMessage";
+    
+    private static final String ERRORS_PATH         = "errors";
+    private static final String WARNINGS_PATH       = "warnings";
+    private static final String SIMPLE_PATH         = "simple";
+    private static final String NOT_EXISTING_PATH   = "not/exist";
+    private static final String FORMAT_STR_PATH     = "formatted/str";
+    private static final String FORMAT_MSG_PATH     = "formatted/msg";
 
+    
     @BeforeClass
     public static void copyClassFiles() {
-
-        copyClassFile(ERROR_PATH);
-        copyClassFile(WARNING_PATH);
-        copyClassFile(CLASS_TEST_PATH);
+        copyClassFile(ERRORS_PATH);
+        copyClassFile(WARNINGS_PATH);
+        copyClassFile(SIMPLE_PATH);
         copyClassFile(FORMAT_STR_PATH);
-        copyClassFile(FORMAT_MES_PATH);
+        copyClassFile(FORMAT_MSG_PATH);
     }
 
     private static void copyClassFile(String path) {
-        
-        String packPath = "test/data/";
+        String packPath = "";
         String sourseRoot = "target/test-classes/" + packPath;
         String destPath = ROOT_PATH + path + "/" + packPath + path + "/";
         String soursePath = sourseRoot + path + "/";
@@ -134,21 +134,21 @@ public class TestAnalizer {
     @Test
     public void warningsOnly() {
         Analizer analizer = Analizer.check(new SystemStreamLog(), ROOT_PATH
-                + WARNING_PATH, "ru,ua", getClass().getClassLoader());
+                + WARNINGS_PATH, "ru,ua", getClass().getClassLoader());
         assertEquals(2, analizer.getWarningCount());
     }
 
     @Test
     public void errorsOnly() {
         Analizer analizer = Analizer.check(new SystemStreamLog(), ROOT_PATH
-                + ERROR_PATH, "ru,ua,pl", getClass().getClassLoader());
+                + ERRORS_PATH, "ru,ua,pl", getClass().getClassLoader());
         assertEquals(4, analizer.getErrorCount());
     }
 
     @Test
     public void testClass() {
         Analizer analizer = Analizer.check(new SystemStreamLog(), ROOT_PATH
-                + CLASS_TEST_PATH, "", getClass().getClassLoader());
+                + SIMPLE_PATH, "", getClass().getClassLoader());
         assertEquals(2, analizer.getWarningCount());
         assertEquals(0, analizer.getErrorCount());
     }
@@ -170,7 +170,7 @@ public class TestAnalizer {
     @Test    
     public void formattedMessage() {
         Analizer analizer = Analizer.check(new SystemStreamLog(), ROOT_PATH
-                + FORMAT_MES_PATH, "ru,ua", getClass().getClassLoader());
+                + FORMAT_MSG_PATH, "ru,ua", getClass().getClassLoader());
         assertEquals(6, analizer.getErrorCount());
         assertEquals(2, analizer.getWarningCount());
     }
