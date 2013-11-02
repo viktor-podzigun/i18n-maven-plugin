@@ -1,5 +1,5 @@
 
-package simple;
+package dynamic;
 
 
 public class EmptyClass {

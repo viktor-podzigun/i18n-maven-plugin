@@ -1,24 +1,14 @@
 
 package warnings;
 
-import com.googlecode.i18n.annotations.LocalizedMessage;
+import com.googlecode.i18n.annotations.MessageProvider;
 
 
-public enum Warnings implements LocalizedMessage {
+@MessageProvider
+public enum Warnings {
     
-    PARAMETR1("par.1"),
-    PARAMETR2("par.2"),
-    PARAMETR3("par.3");
-    
-    private final String id;
-    
-    private Warnings(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public String getMessageId() {
-        return id;
-    }    
+    MSG_1,
+    MSG_2,
+    MSG_3,
 
 }

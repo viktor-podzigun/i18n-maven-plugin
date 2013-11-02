@@ -9,15 +9,18 @@ import java.io.Reader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.IllegalFormatException;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TreeMap;
 import org.apache.maven.plugin.logging.Log;
+import com.googlecode.i18n.annotations.MessageProvider;
 import com.googlecode.i18n.annotations.MessageFormatted;
 import com.googlecode.i18n.annotations.StringFormatted;
-import com.googlecode.i18n.annotations.LocalizedMessage;
 
 
 /**
@@ -237,7 +240,8 @@ public final class Analizer {
     
     
     /**
-     * Load classes that are enums and implement localized interface.
+     * Load classes that are enums and annotated with 
+     * {@link MessageProvider} annotation.
      * 
      * @param classNames    list with class names
      */
@@ -245,18 +249,14 @@ public final class Analizer {
         for (String name : classNames) {
             try {
                 Class<?> clazz = Class.forName(name, false, cl);
-                List<MessageInfo> keys = null;
-                if (clazz.isEnum() 
-                        && LocalizedMessage.class.isAssignableFrom(clazz)) {
-                    
+                MessageProvider prov = clazz.getAnnotation(
+                        MessageProvider.class);
+                
+                Map<String, FormatType> keys = null;
+                if (clazz.isEnum() && prov != null) {
                     @SuppressWarnings("unchecked")
                     Class<Enum<?>> enumClass = (Class<Enum<?>>)clazz;
-                    keys = getKeysFromEnum(enumClass);
-                    
-                    List<MessageInfo> dinamicKeys = getDynamicKeys(clazz);
-                    if (dinamicKeys != null) {
-                        keys.addAll(dinamicKeys);
-                    }
+                    keys = getStaticMessages(enumClass, prov);
                 }
                 
                 if (keys != null){
@@ -269,83 +269,96 @@ public final class Analizer {
     }
 
     /**
-     * Returns all keys for localized class.
-     * Works with classes, that contains method "getI18nMessagesKeys".
+     * Scans enums, that annotated with {@link MessageProvider} annotation 
+     * for additional formatting info.
      * 
+     * @param keys      messages info
      * @param clazz     localized class, that contains keys
-     * @return all keys, that localized class contains
      */
-    private List<MessageInfo> getDynamicKeys(Class<?> clazz) {
-        Method getKeys;
-        try {
-            getKeys = clazz.getMethod("getI18nMessagesKeys");
+    private Map<String, FormatType> getStaticMessages(Class<Enum<?>> clazz, 
+            MessageProvider prov) {
         
-        } catch (NoSuchMethodException x) {
-            return null;
+        // determine default message format
+        MessageFormatted msgFmt = clazz.getAnnotation(MessageFormatted.class);
+        StringFormatted  strFmt = clazz.getAnnotation(StringFormatted.class);
+        if (msgFmt != null && strFmt != null) {
+            throw new RuntimeException(
+                    "Specified more than one default format in " 
+                    + clazz.getName());
         }
-    
-        try {
-            @SuppressWarnings("unchecked")
-            List<String> result = (List<String>)getKeys.invoke(null);
-            List<MessageInfo> keys = new ArrayList<MessageInfo>();
-            for (String keyValue : result) {
-                keys.add(new MessageInfo(keyValue, null));
-            }
-            
-            return keys;
         
-        } catch (Exception x) {
-            throw new RuntimeException(x);
-        }
-    }
-
-    /**
-     * Returns all keys for localized class.
-     * Works with classes, that implemented interface "LocalizedMessage".
-     * 
-     * @param clazz     localized class, that contains keys
-     * @return  all keys, that localized class contains
-     */
-    private List<MessageInfo> getKeysFromEnum(Class<Enum<?>> clazz) {
-        List<MessageInfo> keys = new ArrayList<MessageInfo>();
+        FormatType defFmt = msgFmt != null ? FormatType.MESSAGE 
+                : (strFmt != null ? FormatType.STRING : null);
+        
+        Map<String, FormatType> keys = new HashMap<String, FormatType>();
         for (Enum<?> constant : clazz.getEnumConstants()) {
-            MessageFormatted msgFmt;
-            StringFormatted strFmt;
             try {
+                // determine message format
                 Field field = clazz.getField(constant.name());
                 msgFmt = field.getAnnotation(MessageFormatted.class);
                 strFmt = field.getAnnotation(StringFormatted.class);
-                
+            
             } catch (Exception x) {
                 throw new RuntimeException(x);
             }
             
-            FormatType fmtType = null;
             if (msgFmt != null && strFmt != null) {
-                log.error("Specified more than one format for key: " 
+                throw new RuntimeException(
+                        "Specified more than one format for key: " 
                         + clazz.getName() + "#" + constant.name());
-                incrementError();
-            } else {
-                fmtType = msgFmt != null ? FormatType.MESSAGE 
-                        : (strFmt != null ? FormatType.STRING : null);
             }
-        
-            keys.add(new MessageInfo(
-                    ((LocalizedMessage)constant).getMessageId(), fmtType));
+            
+            FormatType fmtType = msgFmt != null ? FormatType.MESSAGE 
+                    : (strFmt != null ? FormatType.STRING : defFmt);
+            keys.put(constant.name(), fmtType);
         }
-
+        
+        // add dynamic messages, if any
+        for (String m : getDynamicMessages(clazz)) {
+            keys.put(m, null);
+        }
+        
         return keys;
     }
     
+    /**
+     * Returns additional dynamic messages keys.
+     * Works with enums, that contains static method "i18nMessages".
+     * 
+     * @param clazz     localized enum, that contains messages
+     * @return          list of messages ids
+     */
+    private List<String> getDynamicMessages(Class<Enum<?>> clazz) {
+        List<String> result = null;
+        try {
+            Method getKeys = clazz.getMethod("i18nMessages");
+        
+            @SuppressWarnings("unchecked")
+            List<String> keys = (List<String>)getKeys.invoke(null);
+            result = keys;
+        
+        } catch (NoSuchMethodException x) {
+            // we expects this
+        } catch (Exception x) {
+            throw new RuntimeException(x);
+        }
+    
+        if (result == null) {
+            return Collections.emptyList();
+        }
+        
+        return result;
+    }
+
     /** 
      * Matches class constants - keys with values for them in property files. 
      * Reports error if for key missing value or not find key.
      * Reports warning if find keys, not used in class.
      * 
      * @param className     name of checking file
-     * @param keys          array of keys, that localized class contains
+     * @param keys          messages info
      */
-    private void checkKeys(String className, List<MessageInfo> keys) {
+    private void checkKeys(String className, Map<String, FormatType> keys) {
         // checking class
         log.info("Checking " + className);
         
@@ -420,22 +433,22 @@ public final class Analizer {
      * 
      * @param depth     indentation length
      * @param props     properties for file
-     * @param keys      constants from class
+     * @param keys      messages info
      */
     private void checkProperties(int depth, Properties props, 
-            List<MessageInfo> keys) { 
+            Map<String, FormatType> keys) { 
         
         String indent = Analizer.indent(depth);
 
-        for (MessageInfo key : keys) {
-            String keyString = key.getId();            
+        for (Map.Entry<String, FormatType> entry : keys.entrySet()) {
+            String keyString = entry.getKey();
             String value = (String) props.remove(keyString);
             
             checkPropertyPresence(value, keyString, indent);
         }
         
         if (props.size() > 0) {
-            log.warn(indent + "find not used keys:" );
+            log.warn(indent + "found not used keys:" );
             
             indent = Analizer.indent(depth + 1);
             TreeMap<Object, Object> sortedProps = 

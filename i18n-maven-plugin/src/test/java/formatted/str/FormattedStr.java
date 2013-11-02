@@ -2,32 +2,21 @@
 package formatted.str;
 
 import com.googlecode.i18n.annotations.StringFormatted;
-import com.googlecode.i18n.annotations.LocalizedMessage;
+import com.googlecode.i18n.annotations.MessageProvider;
 
 
-public enum FormattedStr implements LocalizedMessage {
+@MessageProvider
+public enum FormattedStr {
     
     @StringFormatted
-    PARAMETR1("par.1"),
+    MSG_1,
     
     @StringFormatted
-    PARAMETR2("par.2"),
+    MSG_2,
     
-    PARAMETR3("par.3"),
+    MSG_3,
     
     @StringFormatted
-    PARAMETR4("par.4"),
-    ;
-    
-    private final String id;
-    
-    FormattedStr(String id) {
-        this.id = id;        
-    }
-
-    @Override
-    public String getMessageId() {
-        return id;
-    }
+    MSG_4,
 
 }
