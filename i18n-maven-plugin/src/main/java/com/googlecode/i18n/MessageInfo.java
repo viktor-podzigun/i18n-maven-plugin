@@ -1,7 +1,6 @@
 
 package com.googlecode.i18n;
 
-import com.googlecode.i18n.annotations.FormatType;
 
 
 /**

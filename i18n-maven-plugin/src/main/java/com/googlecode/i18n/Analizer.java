@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.IllegalFormatException;
@@ -14,8 +15,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TreeMap;
 import org.apache.maven.plugin.logging.Log;
-import com.googlecode.i18n.annotations.FormatType;
-import com.googlecode.i18n.annotations.FormattedMessage;
+import com.googlecode.i18n.annotations.MessageFormatted;
+import com.googlecode.i18n.annotations.StringFormatted;
 import com.googlecode.i18n.annotations.LocalizedMessage;
 
 
@@ -308,25 +309,29 @@ public final class Analizer {
     private List<MessageInfo> getKeysFromEnum(Class<Enum<?>> clazz) {
         List<MessageInfo> keys = new ArrayList<MessageInfo>();
         for (Enum<?> constant : clazz.getEnumConstants()) {
-            String keyValue = ((LocalizedMessage)constant).getMessageId();
-            FormatType keyInfo = null;
+            MessageFormatted msgFmt;
+            StringFormatted strFmt;
             try {
-                FormattedMessage annotation = clazz.getField(constant.name())
-                        .getAnnotation(FormattedMessage.class);
+                Field field = clazz.getField(constant.name());
+                msgFmt = field.getAnnotation(MessageFormatted.class);
+                strFmt = field.getAnnotation(StringFormatted.class);
                 
-                if (annotation != null) {
-                    keyInfo = annotation.type();
-                }                
+            } catch (Exception x) {
+                throw new RuntimeException(x);
+            }
             
-            } catch (SecurityException x) {
-                // We never been here
-                throw new RuntimeException(x);
-            } catch (NoSuchFieldException x) {
-                // We never been here
-                throw new RuntimeException(x);
-            }   
-
-            keys.add(new MessageInfo(keyValue, keyInfo));
+            FormatType fmtType = null;
+            if (msgFmt != null && strFmt != null) {
+                log.error("Specified more than one format for key: " 
+                        + clazz.getName() + "#" + constant.name());
+                incrementError();
+            } else {
+                fmtType = msgFmt != null ? FormatType.MESSAGE 
+                        : (strFmt != null ? FormatType.STRING : null);
+            }
+        
+            keys.add(new MessageInfo(
+                    ((LocalizedMessage)constant).getMessageId(), fmtType));
         }
 
         return keys;
@@ -358,8 +363,8 @@ public final class Analizer {
         
         int depth = 1;
         String indent = indent(depth);
-        StringFormatAnalizer strFormatAnalizer = new StringFormatAnalizer(this);
-        MessageFormatAnalizer mesFormatAnalizer = new MessageFormatAnalizer(this);
+        StringFormatAnalizer strAnalizer = new StringFormatAnalizer(this);
+        MessageFormatAnalizer msgAnalizer = new MessageFormatAnalizer(this);
         
         // Load property files for checking enum
         for (String file : propFiles) {
@@ -376,8 +381,8 @@ public final class Analizer {
             
             // Checking format must be before checking values, 
             // because in last all values removes 
-            strFormatAnalizer.check(depth + 1, props, keys);
-            mesFormatAnalizer.check(depth + 1, props, keys);
+            strAnalizer.check(depth + 1, props, keys);
+            msgAnalizer.check(depth + 1, props, keys);
             
             checkProperties(depth, props, keys);
         }
@@ -417,7 +422,9 @@ public final class Analizer {
      * @param props     properties for file
      * @param keys      constants from class
      */
-    private void checkProperties(int depth, Properties props, List<MessageInfo> keys) { 
+    private void checkProperties(int depth, Properties props, 
+            List<MessageInfo> keys) { 
+        
         String indent = Analizer.indent(depth);
 
         for (MessageInfo key : keys) {
@@ -448,16 +455,16 @@ public final class Analizer {
      * @return true if and only if for property present key and value
      */
     boolean checkPropertyPresence(String value, String key, String indent) {
-        // Check key presence
         if (value == null) {
             reportError(indent, MISSING_KEY, key);
-        // Check value presence
-        } else if (value.trim().isEmpty()) {
-            reportError(indent, MISSING_VALUE, key);          
-        } else {
-            return true;
+            return false;
         }
         
-        return false;
+        if (value.trim().isEmpty()) {
+            reportError(indent, MISSING_VALUE, key);
+            return false;
+        }
+        
+        return true;
     }
 }
