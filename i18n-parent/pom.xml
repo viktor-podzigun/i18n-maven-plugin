@@ -3,22 +3,22 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.googlecode.i18n</groupId>
+    <groupId>com.googlecode.i18n-maven-plugin</groupId>
     <artifactId>i18n-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>${project.artifactId}</name>
     
-    <description>Contains common settings for i18n sub-projects</description>
+    <description>Contains common settings for i18n-maven-plugin modules</description>
     
     <organization>
         <name>Google Code</name>
-        <url>https://code.google.com/p/i18n/</url>
+        <url>http://code.google.com/p/i18n-maven-plugin/</url>
     </organization>
 
     <properties>
-        <svn.base.url>https://code.google.com/p/i18n/svn</svn.base.url>
+        <svn.base.url>https://i18n-maven-plugin.googlecode.com/svn</svn.base.url>
     
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java-version>1.6</java-version>
