@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
-import com.googlecode.i18n.annotations.FormatType;
 
 
 /**
@@ -48,7 +47,7 @@ public final class StringFormatAnalizer extends AbstractFormatAnalizer {
             MessageInfo key = keyIter.next();
             
             //Skip. Value not formatted.
-            if (key.getType() != FormatType.STRING_FORMAT) {
+            if (key.getType() != FormatType.STRING) {
                 continue;
             }
             String keyString = key.getId();

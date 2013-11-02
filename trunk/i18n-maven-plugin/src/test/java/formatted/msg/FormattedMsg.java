@@ -1,22 +1,21 @@
 
 package formatted.msg;
 
-import com.googlecode.i18n.annotations.FormatType;
-import com.googlecode.i18n.annotations.FormattedMessage;
+import com.googlecode.i18n.annotations.MessageFormatted;
 import com.googlecode.i18n.annotations.LocalizedMessage;
 
 
 public enum FormattedMsg implements LocalizedMessage{
     
-    @FormattedMessage(type = FormatType.MESSAGE_FORMAT)
+    @MessageFormatted
     PARAMETR1("par.1"),
     
     PARAMETR2("par.2"),
-    @FormattedMessage(type = FormatType.MESSAGE_FORMAT)
     
+    @MessageFormatted
     PARAMETR3("par.3"),
     
-    @FormattedMessage(type = FormatType.MESSAGE_FORMAT)
+    @MessageFormatted
     PARAMETR4("par.4"),
     ;
     
