@@ -21,7 +21,7 @@ public class TestAnalizer {
     
     private static final String ERRORS_PATH         = "errors";
     private static final String WARNINGS_PATH       = "warnings";
-    private static final String SIMPLE_PATH         = "simple";
+    private static final String DYNAMIC_PATH        = "dynamic";
     private static final String NOT_EXISTING_PATH   = "not/exist";
     private static final String FORMAT_STR_PATH     = "formatted/str";
     private static final String FORMAT_MSG_PATH     = "formatted/msg";
@@ -31,7 +31,7 @@ public class TestAnalizer {
     public static void copyClassFiles() {
         copyClassFile(ERRORS_PATH);
         copyClassFile(WARNINGS_PATH);
-        copyClassFile(SIMPLE_PATH);
+        copyClassFile(DYNAMIC_PATH);
         copyClassFile(FORMAT_STR_PATH);
         copyClassFile(FORMAT_MSG_PATH);
     }
@@ -146,9 +146,9 @@ public class TestAnalizer {
     }
 
     @Test
-    public void testClass() {
+    public void dynamic() {
         Analizer analizer = Analizer.check(new SystemStreamLog(), ROOT_PATH
-                + SIMPLE_PATH, "", getClass().getClassLoader());
+                + DYNAMIC_PATH, "", getClass().getClassLoader());
         assertEquals(2, analizer.getWarningCount());
         assertEquals(0, analizer.getErrorCount());
     }

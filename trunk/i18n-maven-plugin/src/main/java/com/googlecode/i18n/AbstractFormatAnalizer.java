@@ -2,7 +2,6 @@
 package com.googlecode.i18n;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.maven.plugin.logging.Log;
@@ -41,10 +40,10 @@ public abstract class AbstractFormatAnalizer {
      * 
      * @param depth indentation length
      * @param props properties for file
-     * @param keys  constants from class
+     * @param keys  messages info
      */
     protected abstract void check(int depth, Properties props, 
-            List<MessageInfo> keys);
+            Map<String, FormatType> keys);
     
     /**
      * Returns true if and only if value is formatted

@@ -4,7 +4,7 @@ package com.googlecode.i18n;
 import java.util.HashMap;
 import java.util.IllegalFormatException;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
@@ -21,10 +21,12 @@ public final class StringFormatAnalizer extends AbstractFormatAnalizer {
     }
     
     @Override
-    public void check(int depth, Properties props, List<MessageInfo> keys) {
+    public void check(int depth, Properties props, 
+            Map<String, FormatType> keys) {
+        
         if (defFormats == null) {
             defFormats = new HashMap<String, String[]>();
-            checkDefaultStringFormats(depth, props, keys);            
+            checkDefaultStringFormats(depth, props, keys);
         } else {
             checkStringFormats(depth, props);
         }
@@ -36,21 +38,23 @@ public final class StringFormatAnalizer extends AbstractFormatAnalizer {
      * 
      * @param depth indentation length
      * @param props properties for file
-     * @param keys  constants from class
+     * @param keys  messages info
      */
     private void checkDefaultStringFormats(int depth, Properties props, 
-            List<MessageInfo> keys) {
+            Map<String, FormatType> keys) {
         
         String indent = Analizer.indent(depth);
-        Iterator<MessageInfo> keyIter = keys.iterator();
+        Iterator<Map.Entry<String, FormatType>> keyIter = keys.entrySet()
+                .iterator();
         while (keyIter.hasNext()) {
-            MessageInfo key = keyIter.next();
+            Map.Entry<String, FormatType> key = keyIter.next();
             
-            //Skip. Value not formatted.
-            if (key.getType() != FormatType.STRING) {
+            // skip, value is not string formatted
+            if (key.getValue() != FormatType.STRING) {
                 continue;
             }
-            String keyString = key.getId();
+            
+            String keyString = key.getKey();
             String value = (String) props.remove(keyString);
             keyIter.remove();
             

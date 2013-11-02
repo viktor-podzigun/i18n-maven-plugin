@@ -1,24 +1,14 @@
 
 package errors;
 
-import com.googlecode.i18n.annotations.LocalizedMessage;
+import com.googlecode.i18n.annotations.MessageProvider;
 
 
-public enum Errors implements LocalizedMessage{
+@MessageProvider
+public enum Errors {
     
-    PARAMETR1("par.1"),
-    PARAMETR2("par.2"),
-    PARAMETR3("par.3");
+    MSG_1,
+    MSG_2,
+    MSG_3,
     
-    private final String id;
-    
-    private Errors(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public String getMessageId() {
-        return id;
-    }
-
 }
