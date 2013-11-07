@@ -16,6 +16,20 @@
     <packaging>maven-plugin</packaging>
 
     <name>${project.artifactId}</name>
+    <url>${proj.url}</url>
+    <description>Maven plugin that validates localized messages in java project</description>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    
+    <scm>
+       <connection>scm:svn:${svn.base.url}/trunk/${project.artifactId}</connection>
+       <url>${svn.base.url}/trunk/</url>
+    </scm>
 
     <build>
         <plugins>
@@ -69,5 +83,18 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <developers>
+        <developer>
+            <id>viktorp</id>
+            <name>Viktor Podzigun</name>
+            <email>viktor.podzigun@gmail.com</email>
+        </developer>
+        <developer>
+            <id>Bohdan</id>
+            <name>Bohdan Petrenko</name>
+            <email>bohdan.petrenko@gmail.com</email>
+        </developer>
+    </developers>
 
 </project>
