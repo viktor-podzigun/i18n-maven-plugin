@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Class-Path: 
+Built-By: ${user.name}
+Implementation-Title: ${project.artifactId}
+Implementation-Version: ${project.version}
+Implementation-Vendor: ${organization.name}
+Implementation-Build: ${timestamp}
+
