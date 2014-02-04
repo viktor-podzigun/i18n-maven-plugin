@@ -7,13 +7,16 @@ import java.util.List;
 
 /**
  * Parses <code>MessageFormat.format()</code>.
- * Main function is <code>parse()</code>. 
- * Example: for string "Some message {0, number, #}, some number {1,time, full}" 
- * result was [0,number, 1,time]
+ * 
+ * <p>Example: for input string
+ * <blockquote>"Some message {0, number, #}, some number {1,time, full}"
+ * </blockquote>
+ * returns:
+ * <blockquote>[0,number, 1,time]</blockquote>
  */
 public final class MessageFormatParser {
     
-    private List<String> result = new ArrayList<String>();
+    private final List<String>  result = new ArrayList<String>();
     
     
     public static String[] parse(String pattern) {
@@ -40,7 +43,7 @@ public final class MessageFormatParser {
         }
         
         int part = 0;
-        int formatNumber = 0;
+        //int formatNumber = 0;
         boolean inQuote = false;    // in ''
         int braceStack = 0;         // in {}
         for (int i = 0; i < pattern.length(); ++i) {
@@ -80,8 +83,8 @@ public final class MessageFormatParser {
                     if (braceStack == 0) {
                         part = 0;
                         
-                        addFormat(segments);                        
-                        formatNumber++;
+                        addFormat(segments);
+                        //formatNumber++;
                     } else {
                         --braceStack;
                         segments[part].append(ch);
