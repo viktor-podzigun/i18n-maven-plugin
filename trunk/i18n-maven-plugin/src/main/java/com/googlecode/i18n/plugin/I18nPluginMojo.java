@@ -72,12 +72,13 @@ public class I18nPluginMojo extends AbstractMojo {
 
         log.info("");
         log.info("Check results:");
-        log.info("  " + analizer.getErrorCount() + " errors, "
-                + analizer.getWarningCount() + " warnings");
-            
+        log.info("  " + analizer.getErrorCount() + " error(s), "
+                + analizer.getWarningCount() + " warning(s)");
+        
         if (analizer.getErrorCount() > 0) {
             throw new MojoExecutionException(
                     "Errors were found in localization");
         }
     }
+
 }

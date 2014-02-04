@@ -480,4 +480,5 @@ public final class Analizer {
         
         return true;
     }
+
 }

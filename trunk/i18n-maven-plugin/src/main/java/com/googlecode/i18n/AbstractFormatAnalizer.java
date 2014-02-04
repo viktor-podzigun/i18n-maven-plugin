@@ -22,7 +22,7 @@ public abstract class AbstractFormatAnalizer {
         "Invalid format [%s]\n\texpected %s\n\tfound    %s";
     
     protected static final String INVALID_FORMAT = 
-        "Invalid format [%s]\n\t%s";    
+        "Invalid format [%s]\n\t%s";
     
     protected final Analizer        analizer;
     protected final Log             log;

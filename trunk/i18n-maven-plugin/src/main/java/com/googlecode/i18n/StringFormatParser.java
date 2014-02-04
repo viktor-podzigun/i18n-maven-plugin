@@ -17,8 +17,11 @@ import java.util.regex.Pattern;
 
 /**
  * Parses <code>String.format()</code>.
- * Main function is <code>parse()</code>. 
- * Example: for string "Some message %s, some number %d" result was [%s, %d]
+ * 
+ * <p>Example: for input string 
+ * <blockquote>Some message %s, some number %d</blockquote>
+ * returns
+ * <blockquote>[%s, %d]</blockquote>
  */
 public final class StringFormatParser {
     
