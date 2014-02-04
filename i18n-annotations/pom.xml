@@ -11,13 +11,13 @@
     </parent>
 
     <groupId>com.googlecode.i18n-maven-plugin</groupId>
-    <artifactId>i18n-api</artifactId>
+    <artifactId>i18n-annotations</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>${project.artifactId}</name>
     <url>${proj.url}</url>
-    <description>Contains i18n-maven-plugin annotations and utility classes</description>
+    <description>Contains i18n-maven-plugin annotations</description>
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
