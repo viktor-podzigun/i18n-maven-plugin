@@ -28,6 +28,7 @@
     
     <scm>
        <connection>scm:svn:${svn.base.url}/trunk/${project.artifactId}</connection>
+       <developerConnection>scm:svn:${svn.base.url}/trunk/${project.artifactId}</developerConnection>
        <url>${svn.base.url}/trunk/</url>
     </scm>
 
