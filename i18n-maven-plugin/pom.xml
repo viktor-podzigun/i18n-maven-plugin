@@ -10,7 +10,7 @@
 
     <groupId>com.googlecode.i18n-maven-plugin</groupId>
     <artifactId>i18n-maven-plugin</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
 
     <name>${project.artifactId}</name>
@@ -25,9 +25,9 @@
     </licenses>
     
     <scm>
-       <connection>scm:svn:https://i18n-maven-plugin.googlecode.com/svn/tags/i18n-maven-plugin/1.0.0</connection>
-       <developerConnection>scm:svn:https://i18n-maven-plugin.googlecode.com/svn/tags/i18n-maven-plugin/1.0.0</developerConnection>
-       <url>scm:svn:https://i18n-maven-plugin.googlecode.com/svn/tags/i18n-maven-plugin/1.0.0</url>
+       <connection>scm:svn:${svn.base.url}/trunk/${project.artifactId}</connection>
+       <developerConnection>scm:svn:${svn.base.url}/trunk/${project.artifactId}</developerConnection>
+       <url>${svn.base.url}/trunk/</url>
     </scm>
 
     <build>
