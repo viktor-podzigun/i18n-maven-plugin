@@ -93,3 +93,6 @@ Plugin modules are available on [Maven Central](http://search.maven.org/#search|
 ## Groups ##
 [Discussion](http://groups.google.com/group/i18n-maven-plugin-discuss)
 [Commits](http://groups.google.com/group/i18n-maven-plugin-commits)
+
+## Code license ##
+[Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0)
