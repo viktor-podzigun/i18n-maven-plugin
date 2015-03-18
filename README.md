@@ -6,7 +6,6 @@ The idea is to use some markers in java code (@Annotations) to provide informati
 (here is [FullExample](http://github.com/viktor-podzigun/i18n-maven-plugin/blob/master/i18n-demo/src/main/java/com/googlecode/i18n/demo/FullExample.java)):
 ```
 // Messages.java
-
 @MessageProvider
 public enum Messages {
 
@@ -23,7 +22,6 @@ public enum Messages {
 
 ```
 # Messages.properties
-
 HELLO_WORLD=Hello World!
 HELLO_WORLD_MSG=Hello World! My name is {0}
 HELLO_WORLD_STR=Hello World! My name is %s
@@ -31,7 +29,6 @@ HELLO_WORLD_STR=Hello World! My name is %s
 
 ```
 # Messages_ru.properties
-
 HELLO_WORLD=Привет Мир!
 HELLO_WORLD_MSG=Привет Мир! Меня зовут {0}
 HELLO_WORLD_STR=Привет Мир! Меня зовут % s
@@ -60,7 +57,6 @@ NOT_USED=Тест
 ### Example configuration ###
 ```
 <!-- pom.xml -->
-
     <build>
         <plugins>
             <plugin>
@@ -93,3 +89,7 @@ NOT_USED=Тест
 
 ## Maven ##
 Plugin modules are available on [Maven Central](http://search.maven.org/#search|ga|1|g%3A%22com.googlecode.i18n-maven-plugin%22), through [Sonatype OSS hosting](http://oss.sonatype.org/).
+
+## Groups ##
+[Discussion](http://groups.google.com/group/i18n-maven-plugin-discuss)
+[Commits](http://groups.google.com/group/i18n-maven-plugin-commits)
