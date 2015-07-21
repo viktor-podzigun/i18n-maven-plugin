@@ -12,7 +12,7 @@ import org.junit.rules.ExpectedException;
 import com.googlecode.i18n.StringFormatParser;
 
 
-public class TestStringFormatParser {
+public class StringFormatParserTest {
     
     @Test
     public void testFixedString() {

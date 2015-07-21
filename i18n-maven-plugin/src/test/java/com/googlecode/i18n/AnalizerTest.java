@@ -15,7 +15,7 @@ import org.junit.Test;
 import com.googlecode.i18n.Analizer;
 
 
-public class TestAnalizer {
+public class AnalizerTest {
 
     private static final String ROOT_PATH           = "target/testData/";
     

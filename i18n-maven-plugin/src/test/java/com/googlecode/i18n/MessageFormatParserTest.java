@@ -8,7 +8,7 @@ import org.junit.rules.ExpectedException;
 import com.googlecode.i18n.MessageFormatParser;
 
 
-public class TestMessageFormatParser {
+public class MessageFormatParserTest {
     
     
     @Test
