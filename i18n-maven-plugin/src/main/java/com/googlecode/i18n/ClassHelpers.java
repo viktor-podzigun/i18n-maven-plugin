@@ -1,4 +1,3 @@
-
 package com.googlecode.i18n;
 
 import java.io.File;
@@ -6,13 +5,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-
 /**
  * Contains helper methods for working with classes.
  */
 public final class ClassHelpers {
 
-    
     private ClassHelpers() {
     }
     
@@ -26,9 +23,7 @@ public final class ClassHelpers {
      * 
      * @throws IllegalArgumentException if classPaths or parent is null or empty
      */
-    public static ClassLoader createClassLoader(ClassLoader parent, 
-            File... classPaths) {
-        
+    public static ClassLoader createClassLoader(ClassLoader parent, File... classPaths) {
         if (classPaths == null || classPaths.length == 0) {
             throw new IllegalArgumentException("classPaths is null or empty");
         }
@@ -51,5 +46,4 @@ public final class ClassHelpers {
             throw new RuntimeException(x);
         }
     }
-        
 }

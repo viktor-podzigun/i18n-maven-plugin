@@ -1,4 +1,3 @@
-
 package com.googlecode.i18n.plugin;
 
 import java.io.File;
@@ -14,9 +13,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-import com.googlecode.i18n.Analizer;
+import com.googlecode.i18n.ClassMessageAnalyzer;
 import com.googlecode.i18n.ClassHelpers;
-
 
 /**
  * i18n-maven-plugin entry point.
@@ -40,8 +38,8 @@ public class I18nPluginMojo extends AbstractMojo {
     
     @Parameter(property = "project")
     private MavenProject project;
-    
-    
+
+    @Override
     public void execute() throws MojoExecutionException {
         Log log = getLog();
         
@@ -66,19 +64,18 @@ public class I18nPluginMojo extends AbstractMojo {
             }
         }
         
-        Analizer analizer = Analizer.check(log, dir, locales, 
-                ClassHelpers.createClassLoader(getClass().getClassLoader(), 
+        ClassMessageAnalyzer classAnalyzer = ClassMessageAnalyzer.check(log, dir, locales,
+                ClassHelpers.createClassLoader(getClass().getClassLoader(),
                         deps.toArray(new File[deps.size()])));
 
         log.info("");
         log.info("Check results:");
-        log.info("  " + analizer.getErrorCount() + " error(s), "
-                + analizer.getWarningCount() + " warning(s)");
+        log.info("  " + classAnalyzer.getErrorCount() + " error(s), "
+                + classAnalyzer.getWarningCount() + " warning(s)");
         
-        if (analizer.getErrorCount() > 0) {
+        if (classAnalyzer.getErrorCount() > 0) {
             throw new MojoExecutionException(
                     "Errors were found in localization");
         }
     }
-
 }

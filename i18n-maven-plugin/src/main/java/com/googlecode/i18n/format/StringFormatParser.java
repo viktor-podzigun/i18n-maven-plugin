@@ -1,5 +1,4 @@
-
-package com.googlecode.i18n;
+package com.googlecode.i18n.format;
 
 import java.util.ArrayList;
 import java.util.DuplicateFormatFlagsException;
@@ -13,7 +12,6 @@ import java.util.UnknownFormatConversionException;
 import java.util.UnknownFormatFlagsException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 
 /**
  * Parses <code>String.format()</code>.
@@ -29,7 +27,6 @@ public final class StringFormatParser {
     private static Pattern fsPattern = Pattern.compile(
             "%(\\d+\\$)?([-#+ 0,(\\<]*)?(\\d+)?(\\.\\d+)?([tT])?([a-zA-Z%])");
 
-    
     private StringFormatParser() {
     }
 
@@ -66,7 +63,8 @@ public final class StringFormatParser {
                 break;
             }
         }
-        return (FormatString[]) al.toArray(new FormatString[0]);
+
+        return al.toArray(new FormatString[al.size()]);
     }
 
     private void checkText(String s) {

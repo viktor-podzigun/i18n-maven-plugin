@@ -1,7 +1,5 @@
+package com.googlecode.i18n.format;
 
-package com.googlecode.i18n;
-
-import static org.junit.Assert.*;
 import java.util.FormatFlagsConversionMismatchException;
 import java.util.IllegalFormatPrecisionException;
 import java.util.MissingFormatWidthException;
@@ -9,11 +7,13 @@ import java.util.UnknownFormatConversionException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import com.googlecode.i18n.StringFormatParser;
-
+import static org.junit.Assert.assertArrayEquals;
 
 public class StringFormatParserTest {
-    
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     @Test
     public void testFixedString() {
         String[] testString = {};
@@ -50,14 +50,12 @@ public class StringFormatParserTest {
                 StringFormatParser.parse("Duke's Birthday: %1$tm %1$te,%1$tY,%1$tz"));
     }
     
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-    
     @Test
     public void exceptionUnknownFormat() {
         thrown.expect(UnknownFormatConversionException.class);
         thrown.expectMessage("k");
         StringFormatParser.parse("unknown format %k");
+
         thrown.expect(UnknownFormatConversionException.class);
         StringFormatParser.parse("unknown format %");
     }
@@ -79,5 +77,4 @@ public class StringFormatParserTest {
         thrown.expect(MissingFormatWidthException.class);
         StringFormatParser.parse("%-o");
     }
-
 }

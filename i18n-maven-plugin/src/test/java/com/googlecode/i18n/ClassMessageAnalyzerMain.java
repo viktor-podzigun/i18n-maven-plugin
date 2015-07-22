@@ -1,12 +1,9 @@
-
 package com.googlecode.i18n;
 
 import java.io.IOException;
 import org.apache.maven.plugin.logging.SystemStreamLog;
-import com.googlecode.i18n.Analizer;
 
-
-public class AnalizerMain {
+public class ClassMessageAnalyzerMain {
         
     public static void main(String[] args) throws IOException {
         if (args.length == 0) {
@@ -26,8 +23,10 @@ public class AnalizerMain {
             locales   = args[1];
         }
         
-        Analizer analizer = Analizer.check(new SystemStreamLog(), classPath, 
-                locales, AnalizerMain.class.getClassLoader());
+        ClassMessageAnalyzer analizer = ClassMessageAnalyzer.check(new SystemStreamLog(),
+                classPath,
+                locales,
+                ClassMessageAnalyzerMain.class.getClassLoader());
 
         System.err.print("Check results:");
         System.err.print("  " + analizer.getErrorCount() + " errors, "
@@ -37,5 +36,4 @@ public class AnalizerMain {
             System.err.println("Errors in project");
         }
     }
-
 }

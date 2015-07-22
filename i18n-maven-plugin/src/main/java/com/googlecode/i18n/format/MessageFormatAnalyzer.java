@@ -1,21 +1,19 @@
-
-package com.googlecode.i18n;
+package com.googlecode.i18n.format;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-
+import com.googlecode.i18n.ClassMessageAnalyzer;
 
 /**
  * Checks <code>MessageFormat</code> formatted messages in property files.
  * Checks the message format with the default format (English).
  */
-public class MessageFormatAnalizer extends AbstractFormatAnalizer {
-    
-    
-    public MessageFormatAnalizer(Analizer analizer) {        
+public class MessageFormatAnalyzer extends AbstractFormatAnalyzer {
+
+    public MessageFormatAnalyzer(ClassMessageAnalyzer analizer) {
         super(analizer);
     }
     
@@ -39,10 +37,10 @@ public class MessageFormatAnalizer extends AbstractFormatAnalizer {
      * @param props properties for file
      * @param keys  messages info
      */
-    private void checkDefaultMessageFormats(int depth, Properties props, 
+    private void checkDefaultMessageFormats(int depth, Properties props,
             Map<String, FormatType> keys) {
         
-        String indent = Analizer.indent(depth);
+        String indent = analyzer.indent(depth);
         Iterator<Map.Entry<String, FormatType>> keyIter = keys.entrySet()
                 .iterator();
         while (keyIter.hasNext()) {
@@ -57,18 +55,18 @@ public class MessageFormatAnalizer extends AbstractFormatAnalizer {
             String value = (String) props.remove(keyString);
             keyIter.remove();
             
-            if (!analizer.checkPropertyPresence(value, keyString, indent)) {
+            if (!analyzer.checkProperty(indent, keyString, value)) {
                 continue;
             }
             
             try {
                 String[] parsedValue = MessageFormatParser.parse(value);
                 //Ok. It is formatted value. Put this value.
-                if (checkValueFormat(parsedValue, keyString, indent)) {
+                if (checkValueFormat(indent, keyString, parsedValue)) {
                     defFormats.put(keyString, parsedValue); 
                 }
             } catch (IllegalArgumentException x) {
-                wrongFormatMessage(keyString, indent, x.getMessage());
+                wrongFormatMessage(indent, keyString, x.getMessage());
             }
         }
     }
@@ -80,31 +78,31 @@ public class MessageFormatAnalizer extends AbstractFormatAnalizer {
      * @param props properties for file
      */
     private void checkMessageFormats(int depth, Properties props) {
-        String indent = Analizer.indent(depth);
+        String indent = analyzer.indent(depth);
         for (Entry<String, String[]> defFormat : defFormats.entrySet()) {
             String defKey = defFormat.getKey();
             String[] defValue = defFormat.getValue();
 
             String value = (String)props.remove(defKey);
-            if (!analizer.checkPropertyPresence(value, defKey, indent)) {
+            if (!analyzer.checkProperty(indent, defKey, value)) {
                 continue;
             }
             
             try {
                 String[] parsedValue = MessageFormatParser.parse(value);
-                if (!checkValueFormat(parsedValue, defKey, indent)) {
+                if (!checkValueFormat(indent, defKey, parsedValue)) {
                     continue;
                 }
                  
-                if (!checkCorrectnessOfFormatLength(parsedValue, defKey, 
-                        defValue, indent)) {
+                if (!checkCorrectnessOfFormatLength(indent, defKey, parsedValue,
+                        defValue)) {
                     continue;
                 }
                 
-                checkFormatCorrectness(parsedValue, defKey, defValue, indent);
+                checkFormatCorrectness(indent, defKey, parsedValue, defValue);
             
             } catch (IllegalArgumentException x) {
-                wrongFormatMessage(defKey, indent, x.getMessage());
+                wrongFormatMessage(indent, defKey, x.getMessage());
             }            
         }
     }   

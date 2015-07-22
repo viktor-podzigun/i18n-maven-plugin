@@ -1,5 +1,4 @@
-
-package com.googlecode.i18n;
+package com.googlecode.i18n.format;
 
 import java.util.HashMap;
 import java.util.IllegalFormatException;
@@ -7,16 +6,15 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-
+import com.googlecode.i18n.ClassMessageAnalyzer;
 
 /**
  * Checks <code>String.format()</code> formatted messages in property files.
  * Checks the message format with the default format (English).
  */
-public final class StringFormatAnalizer extends AbstractFormatAnalizer {
-    
-    
-    public StringFormatAnalizer(Analizer analizer) {        
+public final class StringFormatAnalyzer extends AbstractFormatAnalyzer {
+
+    public StringFormatAnalyzer(ClassMessageAnalyzer analizer) {
         super(analizer);
     }
     
@@ -43,7 +41,7 @@ public final class StringFormatAnalizer extends AbstractFormatAnalizer {
     private void checkDefaultStringFormats(int depth, Properties props, 
             Map<String, FormatType> keys) {
         
-        String indent = Analizer.indent(depth);
+        String indent = analyzer.indent(depth);
         Iterator<Map.Entry<String, FormatType>> keyIter = keys.entrySet()
                 .iterator();
         while (keyIter.hasNext()) {
@@ -58,18 +56,18 @@ public final class StringFormatAnalizer extends AbstractFormatAnalizer {
             String value = (String) props.remove(keyString);
             keyIter.remove();
             
-            if (!analizer.checkPropertyPresence(value, keyString, indent)) {
+            if (!analyzer.checkProperty(indent, keyString, value)) {
                 continue;
             }
             
             try {
                 String[] parsedValue = StringFormatParser.parse(value);
                 //Ok. It is formatted value. Put this value.
-                if (checkValueFormat(parsedValue, keyString, indent)) {
+                if (checkValueFormat(indent, keyString, parsedValue)) {
                     defFormats.put(keyString, parsedValue); 
                 }
             } catch (IllegalFormatException x) {
-                wrongFormatMessage(keyString, indent, x.getMessage());
+                wrongFormatMessage(indent, keyString, x.getMessage());
             }
         }
     }
@@ -81,31 +79,32 @@ public final class StringFormatAnalizer extends AbstractFormatAnalizer {
      * @param props properties for file
      */
     private void checkStringFormats(int depth, Properties props) {
-        String indent = Analizer.indent(depth);
+        String indent = analyzer.indent(depth);
         for (Entry<String, String[]> defStrFormat : defFormats.entrySet()) {
             String defKey = defStrFormat.getKey();
             String[] defValue = defStrFormat.getValue();
 
             String value = (String)props.remove(defKey);
-            if (!analizer.checkPropertyPresence(value, defKey, indent)) {
+            if (!analyzer.checkProperty(indent, defKey, value)) {
                 continue;
             }
             
             try {
                 String[] parsedValue = StringFormatParser.parse(value);
                  
-                if (!checkValueFormat(parsedValue, defKey, indent)) {
+                if (!checkValueFormat(indent, defKey, parsedValue)) {
                     continue;
                 }
                  
-                if (!checkCorrectnessOfFormatLength(parsedValue, defKey, 
-                        defValue, indent)) {
+                if (!checkCorrectnessOfFormatLength(indent, defKey, parsedValue,
+                        defValue)) {
                     continue;
                 }
                 
-                checkFormatCorrectness(parsedValue, defKey, defValue, indent);
+                checkFormatCorrectness(indent, defKey, parsedValue, defValue);
+
             } catch (IllegalFormatException x) {
-                wrongFormatMessage(defKey, indent, x.getMessage());
+                wrongFormatMessage(indent, defKey, x.getMessage());
             }            
         }
     }   

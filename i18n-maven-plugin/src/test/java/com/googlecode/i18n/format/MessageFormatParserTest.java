@@ -1,16 +1,15 @@
-
-package com.googlecode.i18n;
+package com.googlecode.i18n.format;
 
 import static org.junit.Assert.assertArrayEquals;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import com.googlecode.i18n.MessageFormatParser;
-
 
 public class MessageFormatParserTest {
-    
-    
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     @Test
     public void testNumber() {
         String[] testString = {"0,number", "0,number"};
@@ -41,18 +40,16 @@ public class MessageFormatParserTest {
         		"one file|1<are {0,number,integer} files}."));       
     }
     
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-    
     @Test
     public void exceptionUnknownFormat() {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Format type = 'wrong'");
         MessageFormatParser.parse("some {0,wrong,full}");
+
         thrown.expect(IllegalArgumentException.class);
         MessageFormatParser.parse("some {h,time,full}");
+
         thrown.expect(IllegalArgumentException.class);
         MessageFormatParser.parse("some {-12,time,full}");
     }
-
 }

@@ -1,4 +1,3 @@
-
 package com.googlecode.i18n;
 
 import java.io.File;
@@ -14,19 +13,21 @@ import java.util.HashMap;
 import java.util.IllegalFormatException;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.TreeMap;
+import java.util.Set;
+import java.util.TreeSet;
 import org.apache.maven.plugin.logging.Log;
-import com.googlecode.i18n.annotations.MessageProvider;
 import com.googlecode.i18n.annotations.MessageFormatted;
+import com.googlecode.i18n.annotations.MessageProvider;
 import com.googlecode.i18n.annotations.StringFormatted;
-
+import com.googlecode.i18n.format.FormatType;
+import com.googlecode.i18n.format.MessageFormatAnalyzer;
+import com.googlecode.i18n.format.StringFormatAnalyzer;
 
 /**
- * Compile-time java localization checker. 
+ * Localization checker for keys defined in classes. 
  */
-public final class Analizer {
+public final class ClassMessageAnalyzer {
 
     private final static String CLASS_EXT       = ".class";
     private final static String PROP_EXT        = ".properties";
@@ -45,8 +46,7 @@ public final class Analizer {
     private int                 errorCount;
     private int                 warningCount;
     
-    
-    private Analizer(Log log, ClassLoader cl, String locales) {
+    private ClassMessageAnalyzer(Log log, ClassLoader cl, String locales) {
         this.log = log;
         this.cl  = cl;
         
@@ -76,7 +76,7 @@ public final class Analizer {
      * Returns log which displays information
      * @return log
      */
-    Log getLog() {
+    public Log getLog() {
         return log;
     }
     
@@ -86,8 +86,8 @@ public final class Analizer {
      * @param depth     intent length
      * @return          indent string
      */
-    static String indent(int depth) {
-        int indent = depth * INDENT_SIZE;
+    public String indent(int depth) {
+        final int indent = depth * INDENT_SIZE;
         return INDENT_CHARS.substring(0, indent);
     }
     
@@ -122,7 +122,7 @@ public final class Analizer {
      * @throws  NullPointerException
      *          If the <tt>format</tt> is <tt>null</tt>
      */
-    void reportError(String indent, String format, Object... args) {
+    public void reportError(String indent, String format, Object... args) {
         log.error(indent + String.format(format, args));
         incrementError();
     } 
@@ -157,42 +157,42 @@ public final class Analizer {
      *          If the <tt>format</tt> is <tt>null</tt>
      */
     void reportWarning(String indent, Object... args) {
-        String format = "[%s]";
-        log.warn(indent + String.format(format, args));
+        log.warn(indent + String.format("[%s]", args));
         incrementWarning();
     }
-    
+
     /**
-     * Uses for localization. 
-     * Finds classes and property files in passed directory. 
-     * Matches class constants - keys with values for them in property files. 
-     * Reports error if for key missing value or not find key.
-     * Reports warning if find keys, not used in class.
-     * Uses English localization, if no locals parameter. 
-     * 
-     * @param loggin        use maven or console   
-     * @param classesPath   directory with classes 
-     * @param locale        list of properties types
-     * @param parent        parent class loader, that load you class.
-     * @return              analizer object, that contains count of find errors
-     *                      and warnings 
+     * Performs localization checks.
+     *
+     * <p/>Finds classes and property files in passed directory. Matches class constants - keys with
+     * values for them in property files. Reports errors for missing keys and values. Reports
+     * warnings for not used keys. Uses neutral localization, if no locales passed.
+     *
+     * @param log         use maven or console
+     * @param classesPath directory with classes
+     * @param locales     list of supported locales
+     * @param parent      parent class loader, that load you class.
+     * @return            analyzer object, that contains count of found errors and warnings
      */
-    public static Analizer check(Log loggin, String classesPath, 
-            String locale, ClassLoader parent) {
-        
-        File dir = new File(classesPath);
+    public static ClassMessageAnalyzer check(Log log, String classesPath, String locales,
+            ClassLoader parent) {
+
+        final File dir = new File(classesPath);
         if (!dir.isDirectory()) {
-            throw new RuntimeException("Classes directory not exists: " + dir);
+            throw new RuntimeException("Classes directory doesn't exist: " + dir);
         }
         
         List<String> classes = new ArrayList<String>();
         listClassesR(classes, dir, "");
-        
-        
-        Analizer analizer = new Analizer(loggin, 
-                ClassHelpers.createClassLoader(parent, dir), locale);
-        
-        analizer.checkClasses(classes);        
+
+        ClassMessageAnalyzer analizer = new ClassMessageAnalyzer(log,
+                ClassHelpers.createClassLoader(parent, dir), locales);
+        try {
+            analizer.checkClasses(classes);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         return analizer;
     }
     
@@ -216,28 +216,28 @@ public final class Analizer {
      * Find classes in class path. Recurse function.
      * 
      * @param classes       list of classes where find classes added
-     * @param dir Class     path
-     * @param parentPakage  recurse parameter. Must be empty string
+     * @param dir           path to classes
+     * @param parentPackage recurse parameter. Must be empty string
      */
-    private static void listClassesR(List<String> classes, File dir, 
-            String parentPakage) {
-        
-        for (File f : dir.listFiles()) {
+    private static void listClassesR(List<String> classes, File dir, String parentPackage) {
+        final File[] files = dir.listFiles();
+        if (files == null) {
+            return;
+        }
+
+        for (File f : files) {
             String name = f.getName();
-            String pakage = (parentPakage.length() == 0 ? 
-                    name : parentPakage + "." + name);
+            String pakage = (parentPackage.length() == 0 ? name : parentPackage + "." + name);
             
             if (f.isDirectory()) {
                 listClassesR(classes, f, pakage);
             } else {
                 if (name.endsWith(CLASS_EXT)){
-                    classes.add(pakage.substring(0, 
-                            pakage.length() - CLASS_EXT.length()));
+                    classes.add(pakage.substring(0, pakage.length() - CLASS_EXT.length()));
                 }               
             }
         }
     }
-    
     
     /**
      * Load classes that are enums and annotated with 
@@ -245,22 +245,16 @@ public final class Analizer {
      * 
      * @param classNames    list with class names
      */
-    private void checkClasses(List<String> classNames) {
+    private void checkClasses(List<String> classNames) throws IOException {
         for (String name : classNames) {
             try {
-                Class<?> clazz = Class.forName(name, false, cl);
-                MessageProvider prov = clazz.getAnnotation(
-                        MessageProvider.class);
+                final Class<?> clazz = Class.forName(name, false, cl);
+                final MessageProvider prov = clazz.getAnnotation(MessageProvider.class);
                 
-                Map<String, FormatType> keys = null;
                 if (clazz.isEnum() && prov != null) {
                     @SuppressWarnings("unchecked")
-                    Class<Enum<?>> enumClass = (Class<Enum<?>>)clazz;
-                    keys = getStaticMessages(enumClass, prov);
-                }
-                
-                if (keys != null){
-                    checkKeys(clazz.getName(), keys);
+                    Class<Enum<?>> enumClass = (Class<Enum<?>>) clazz;
+                    checkClass(clazz.getName(), getClassMessages(enumClass, prov));
                 }
             } catch (ClassNotFoundException x) {
                 throw new RuntimeException(x);
@@ -271,26 +265,23 @@ public final class Analizer {
     /**
      * Scans enums, that annotated with {@link MessageProvider} annotation 
      * for additional formatting info.
-     * 
-     * @param keys      messages info
-     * @param clazz     localized class, that contains keys
      */
-    private Map<String, FormatType> getStaticMessages(Class<Enum<?>> clazz, 
+    private Map<String, FormatType> getClassMessages(Class<Enum<?>> clazz,
             MessageProvider prov) {
-        
+
         // determine default message format
         MessageFormatted msgFmt = clazz.getAnnotation(MessageFormatted.class);
         StringFormatted  strFmt = clazz.getAnnotation(StringFormatted.class);
         if (msgFmt != null && strFmt != null) {
             throw new RuntimeException(
-                    "Specified more than one default format in " 
+                    "Specified more than one default format in "
                     + clazz.getName());
         }
         
         FormatType defFmt = msgFmt != null ? FormatType.MESSAGE 
                 : (strFmt != null ? FormatType.STRING : null);
         
-        Map<String, FormatType> keys = new HashMap<String, FormatType>();
+        final Map<String, FormatType> keys = new HashMap<String, FormatType>();
         for (Enum<?> constant : clazz.getEnumConstants()) {
             try {
                 // determine message format
@@ -314,7 +305,7 @@ public final class Analizer {
         }
         
         // add dynamic messages, if any
-        for (String m : getDynamicMessages(clazz)) {
+        for (String m : getClassDynamicMessages(clazz)) {
             keys.put(m, null);
         }
         
@@ -328,25 +319,25 @@ public final class Analizer {
      * @param clazz     localized enum, that contains messages
      * @return          list of messages ids
      */
-    private List<String> getDynamicMessages(Class<Enum<?>> clazz) {
+    private List<String> getClassDynamicMessages(Class<Enum<?>> clazz) {
         List<String> result = null;
         try {
-            Method getKeys = clazz.getMethod("i18nMessages");
+            final Method getKeys = clazz.getMethod("i18nMessages");
         
             @SuppressWarnings("unchecked")
-            List<String> keys = (List<String>)getKeys.invoke(null);
+            final List<String> keys = (List<String>) getKeys.invoke(null);
             result = keys;
-        
+
         } catch (NoSuchMethodException x) {
             // we expects this
         } catch (Exception x) {
             throw new RuntimeException(x);
         }
-    
+
         if (result == null) {
             return Collections.emptyList();
         }
-        
+
         return result;
     }
 
@@ -358,7 +349,7 @@ public final class Analizer {
      * @param className     name of checking file
      * @param keys          messages info
      */
-    private void checkKeys(String className, Map<String, FormatType> keys) {
+    private void checkClass(String className, Map<String, FormatType> keys) throws IOException {
         // checking class
         log.info("Checking " + className);
         
@@ -369,15 +360,15 @@ public final class Analizer {
         List<String> propFiles = new ArrayList<String>();
         propFiles.add(propFile + PROP_EXT);
         if (locales != null) {
-            for (int i = 0; i < locales.length; i++) {
-                propFiles.add(propFile + "_" + locales[i] + PROP_EXT);
+            for (final String locale : locales) {
+                propFiles.add(propFile + "_" + locale + PROP_EXT);
             }
         }
         
-        int depth = 1;
+        final int depth = 1;
         String indent = indent(depth);
-        StringFormatAnalizer strAnalizer = new StringFormatAnalizer(this);
-        MessageFormatAnalizer msgAnalizer = new MessageFormatAnalizer(this);
+        StringFormatAnalyzer strAnalizer = new StringFormatAnalyzer(this);
+        MessageFormatAnalyzer msgAnalizer = new MessageFormatAnalyzer(this);
         
         // Load property files for checking enum
         for (String file : propFiles) {
@@ -390,13 +381,10 @@ public final class Analizer {
             }
             
             log.info(indent + "Checking " + propsName);
-            Properties props = loadProperties(is);
-            
-            // Checking format must be before checking values, 
-            // because in last all values removes 
+
+            final Properties props = loadProperties(is);
             strAnalizer.check(depth + 1, props, keys);
             msgAnalizer.check(depth + 1, props, keys);
-            
             checkProperties(depth, props, keys);
         }
     }
@@ -407,25 +395,20 @@ public final class Analizer {
      * @param is Input stream with property file
      * @return loaded properties
      */
-    private static Properties loadProperties(InputStream is) {
-        Properties props = new Properties();
+    private static Properties loadProperties(InputStream is) throws IOException {
         Reader reader = null;
         try {
             reader = new InputStreamReader(is, "UTF-8");
+
+            final Properties props = new Properties();
             props.load(reader);
-        
-        } catch (IOException x) {
-            throw new RuntimeException(x);
+            return props;
+
         } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (IOException x) {
-                throw new RuntimeException(x);
+            if (reader != null) {
+                reader.close();
             }
-        }       
-        return props;
+        }
     }
     
     /**
@@ -435,39 +418,37 @@ public final class Analizer {
      * @param props     properties for file
      * @param keys      messages info
      */
-    private void checkProperties(int depth, Properties props, 
-            Map<String, FormatType> keys) { 
-        
-        String indent = Analizer.indent(depth);
+    private void checkProperties(int depth, Properties props, Map<String, FormatType> keys) {
+        String indent = indent(depth);
+        final Set<String> sortedKeys = new TreeSet<String>(props.stringPropertyNames());
 
         for (Map.Entry<String, FormatType> entry : keys.entrySet()) {
-            String keyString = entry.getKey();
-            String value = (String) props.remove(keyString);
+            String key = entry.getKey();
+            String value = props.getProperty(key);
+            sortedKeys.remove(key);
             
-            checkPropertyPresence(value, keyString, indent);
+            checkProperty(indent, key, value);
         }
         
-        if (props.size() > 0) {
+        if (!sortedKeys.isEmpty()) {
             log.warn(indent + "found not used keys:" );
             
-            indent = Analizer.indent(depth + 1);
-            TreeMap<Object, Object> sortedProps = 
-                new TreeMap<Object, Object>(props);
-            for (Entry<Object, Object> entry : sortedProps.entrySet()) {
-                reportWarning(indent, entry.getKey());
+            indent = indent(depth + 1);
+            for (final String key : sortedKeys) {
+                reportWarning(indent, key);
             }
         }
     }
     
     /**
-     * Returns true if and only if for property present key and value
+     * Returns true if and only if for property present key and value.
      * 
-     * @param value     checked value
-     * @param key       checked key
      * @param indent    indentation string
-     * @return true if and only if for property present key and value
+     * @param key       checked key
+     * @param value     checked value
+     * @return          <code>true</code> if and only if property has both key and value
      */
-    boolean checkPropertyPresence(String value, String key, String indent) {
+    public boolean checkProperty(String indent, String key, String value) {
         if (value == null) {
             reportError(indent, MISSING_KEY, key);
             return false;
@@ -480,5 +461,4 @@ public final class Analizer {
         
         return true;
     }
-
 }

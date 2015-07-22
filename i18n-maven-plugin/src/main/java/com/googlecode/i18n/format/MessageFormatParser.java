@@ -1,9 +1,7 @@
-
-package com.googlecode.i18n;
+package com.googlecode.i18n.format;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * Parses <code>MessageFormat.format()</code>.
@@ -17,8 +15,7 @@ import java.util.List;
 public final class MessageFormatParser {
     
     private final List<String>  result = new ArrayList<String>();
-    
-    
+
     public static String[] parse(String pattern) {
         MessageFormatParser parser = new MessageFormatParser();
         parser.applyPattern(pattern);
