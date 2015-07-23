@@ -9,7 +9,7 @@ public class ClassMessageAnalyzerMain {
         if (args.length == 0) {
             System.out.println(
                     "HELP:\n\tEnter class path in first parameter." 
-                    + "\nLocals in second parameter. Locals is not requirement");
+                    + "\nLocales in second parameter. Locales is optional");
             return;
         }
         

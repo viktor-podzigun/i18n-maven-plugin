@@ -7,7 +7,8 @@ import java.util.UnknownFormatConversionException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import static org.junit.Assert.assertArrayEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
 public class StringFormatParserTest {
 
@@ -16,38 +17,68 @@ public class StringFormatParserTest {
 
     @Test
     public void testFixedString() {
-        String[] testString = {};
-        assertArrayEquals(testString, 
-                StringFormatParser.parse("Fixed string, %%, %n"));
+        //given
+        final String format = "Fixed string, %%, %n";
+
+        //when
+        final String[] result = StringFormatParser.parse(format);
+
+        //then
+        final String[] testString = {};
+        assertThat(result, is(testString));
     }
     
     @Test
     public void testExplicitIndexing() {
-        String[] testString = {"4$s", "3$s", "2$s", "1$s"};
-        assertArrayEquals(testString, 
-                StringFormatParser.parse("%4$s %3$s %2$s %1$s"));
+        //given
+        final String format = "%4$s %3$s %2$s %1$s";
+
+        //when
+        final String[] result = StringFormatParser.parse(format);
+
+        //then
+        final String[] testString = {"4$s", "3$s", "2$s", "1$s"};
+        assertThat(result, is(testString));
     }
 
     @Test
     public void testOrdinaryIndexing() {
-        String[] testString = {"s", "d", "f", "c", "b", "o", "X"};
-        assertArrayEquals(testString, 
-                StringFormatParser.parse("String %s, integer %d, float %f, " +
-                		"char %c, boolean %b, %o, %X"));
+        //given
+        final String format = "String %s, integer %d, float %f, " +
+                "char %c, boolean %b, %o, %X";
+
+        //when
+        final String[] result = StringFormatParser.parse(format);
+
+        //then
+        final String[] testString = {"s", "d", "f", "c", "b", "o", "X"};
+        assertThat(result, is(testString));
     }
     
     @Test
     public void testRelativeIndexing() {
-        String[] testString = {"2$s", "s", "<s", "<s"};
-        assertArrayEquals(testString, 
-                StringFormatParser.parse("%2$s %s %<s %<s"));
+        //given
+        final String format = "%2$s %s %<s %<s";
+
+        //when
+        final String[] result = StringFormatParser.parse(format);
+
+        //then
+        final String[] testString = {"2$s", "s", "<s", "<s"};
+        assertThat(result, is(testString));
     }
-        
+
     @Test
     public void testDate() {
-        String[] testString = {"1$tm", "1$te", "1$tY", "1$tz"};
-        assertArrayEquals(testString, 
-                StringFormatParser.parse("Duke's Birthday: %1$tm %1$te,%1$tY,%1$tz"));
+        //given
+        final String format = "Duke's Birthday: %1$tm %1$te,%1$tY,%1$tz";
+
+        //when
+        final String[] result = StringFormatParser.parse(format);
+
+        //then
+        final String[] testString = {"1$tm", "1$te", "1$tY", "1$tz"};
+        assertThat(result, is(testString));
     }
     
     @Test
@@ -73,7 +104,7 @@ public class StringFormatParserTest {
     }
     
     @Test
-    public void exceptionMissingWidht() {
+    public void exceptionMissingWidth() {
         thrown.expect(MissingFormatWidthException.class);
         StringFormatParser.parse("%-o");
     }

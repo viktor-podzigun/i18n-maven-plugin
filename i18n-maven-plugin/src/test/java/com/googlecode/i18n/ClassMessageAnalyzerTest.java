@@ -1,6 +1,5 @@
 package com.googlecode.i18n;
 
-import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -11,7 +10,8 @@ import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import com.googlecode.i18n.ClassMessageAnalyzer;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
 public class ClassMessageAnalyzerTest {
 
@@ -48,7 +48,7 @@ public class ClassMessageAnalyzerTest {
         ClassMessageAnalyzer analizer = ClassMessageAnalyzer.check(new SystemStreamLog(),
                 ROOT_PATH + WARNINGS_PATH, "ru,ua", getClass().getClassLoader());
 
-        assertEquals(2, analizer.getWarningCount());
+        assertThat(analizer.getWarningCount(), is(2));
     }
 
     @Test
@@ -56,7 +56,7 @@ public class ClassMessageAnalyzerTest {
         ClassMessageAnalyzer analizer = ClassMessageAnalyzer.check(new SystemStreamLog(),
                 ROOT_PATH + ERRORS_PATH, "ru,ua,pl", getClass().getClassLoader());
 
-        assertEquals(4, analizer.getErrorCount());
+        assertThat(analizer.getErrorCount(), is(4));
     }
 
     @Test
@@ -64,8 +64,8 @@ public class ClassMessageAnalyzerTest {
         ClassMessageAnalyzer analizer = ClassMessageAnalyzer.check(new SystemStreamLog(),
                 ROOT_PATH + DYNAMIC_PATH, "", getClass().getClassLoader());
 
-        assertEquals(2, analizer.getWarningCount());
-        assertEquals(0, analizer.getErrorCount());
+        assertThat(analizer.getWarningCount(), is(2));
+        assertThat(analizer.getErrorCount(), is(0));
     }
 
     @Test(expected = RuntimeException.class)
@@ -79,8 +79,8 @@ public class ClassMessageAnalyzerTest {
         ClassMessageAnalyzer analizer = ClassMessageAnalyzer.check(new SystemStreamLog(),
                 ROOT_PATH + FORMAT_STR_PATH, "ru,ua", getClass().getClassLoader());
 
-        assertEquals(7, analizer.getErrorCount());
-        assertEquals(2, analizer.getWarningCount());
+        assertThat(analizer.getErrorCount(), is(7));
+        assertThat(analizer.getWarningCount(), is(2));
     }
     
     @Test    
@@ -88,8 +88,8 @@ public class ClassMessageAnalyzerTest {
         ClassMessageAnalyzer analizer = ClassMessageAnalyzer.check(new SystemStreamLog(),
                 ROOT_PATH + FORMAT_MSG_PATH, "ru,ua", getClass().getClassLoader());
 
-        assertEquals(6, analizer.getErrorCount());
-        assertEquals(2, analizer.getWarningCount());
+        assertThat(analizer.getErrorCount(), is(6));
+        assertThat(analizer.getWarningCount(), is(2));
     }
 
     private static void copyClassFile(String path) {
