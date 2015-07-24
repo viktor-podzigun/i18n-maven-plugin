@@ -11,13 +11,24 @@ public class MessageFormatParserTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
+    private final MessageFormatParser messageFormatParser = new MessageFormatParser();
+
+    @Test
+    public void checkFormatType() {
+        //when
+        final FormatType formatType = messageFormatParser.getFormatType();
+
+        //then
+        assertThat(formatType, is(FormatType.MESSAGE));
+    }
+
     @Test
     public void testNumber() {
         //given
         final String pattern = "some numb {0,number,#} {0,number,short}";
 
         //when
-        final String[] result = MessageFormatParser.parse(pattern);
+        final String[] result = messageFormatParser.parse(pattern);
 
         //then
         final String[] testString = {"0,number", "0,number"};
@@ -30,7 +41,7 @@ public class MessageFormatParserTest {
         final String pattern = "some date {0,date,full} {1,date,short}";
 
         //when
-        final String[] result = MessageFormatParser.parse(pattern);
+        final String[] result = messageFormatParser.parse(pattern);
 
         //then
         final String[] testString = {"0,date", "1,date"};
@@ -43,7 +54,7 @@ public class MessageFormatParserTest {
         final String pattern = "some time {0,time,full} {1,time,short}";
 
         //when
-        final String[] result = MessageFormatParser.parse(pattern);
+        final String[] result = messageFormatParser.parse(pattern);
 
         //then
         final String[] testString = {"0,time", "1,time"};
@@ -57,7 +68,7 @@ public class MessageFormatParserTest {
                 "one file|1<are {0,number,integer} files}.";
 
         //when
-        final String[] result = MessageFormatParser.parse(pattern);
+        final String[] result = messageFormatParser.parse(pattern);
 
         //then
         final String[] testString = {"0,choice"};
@@ -68,12 +79,12 @@ public class MessageFormatParserTest {
     public void exceptionUnknownFormat() {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Format type = 'wrong'");
-        MessageFormatParser.parse("some {0,wrong,full}");
+        messageFormatParser.parse("some {0,wrong,full}");
 
         thrown.expect(IllegalArgumentException.class);
-        MessageFormatParser.parse("some {h,time,full}");
+        messageFormatParser.parse("some {h,time,full}");
 
         thrown.expect(IllegalArgumentException.class);
-        MessageFormatParser.parse("some {-12,time,full}");
+        messageFormatParser.parse("some {-12,time,full}");
     }
 }

@@ -15,13 +15,24 @@ public class StringFormatParserTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
+    private final StringFormatParser stringFormatParser = new StringFormatParser();
+
+    @Test
+    public void checkFormatType() {
+        //when
+        final FormatType formatType = stringFormatParser.getFormatType();
+
+        //then
+        assertThat(formatType, is(FormatType.STRING));
+    }
+
     @Test
     public void testFixedString() {
         //given
         final String format = "Fixed string, %%, %n";
 
         //when
-        final String[] result = StringFormatParser.parse(format);
+        final String[] result = stringFormatParser.parse(format);
 
         //then
         final String[] testString = {};
@@ -34,7 +45,7 @@ public class StringFormatParserTest {
         final String format = "%4$s %3$s %2$s %1$s";
 
         //when
-        final String[] result = StringFormatParser.parse(format);
+        final String[] result = stringFormatParser.parse(format);
 
         //then
         final String[] testString = {"4$s", "3$s", "2$s", "1$s"};
@@ -48,7 +59,7 @@ public class StringFormatParserTest {
                 "char %c, boolean %b, %o, %X";
 
         //when
-        final String[] result = StringFormatParser.parse(format);
+        final String[] result = stringFormatParser.parse(format);
 
         //then
         final String[] testString = {"s", "d", "f", "c", "b", "o", "X"};
@@ -61,7 +72,7 @@ public class StringFormatParserTest {
         final String format = "%2$s %s %<s %<s";
 
         //when
-        final String[] result = StringFormatParser.parse(format);
+        final String[] result = stringFormatParser.parse(format);
 
         //then
         final String[] testString = {"2$s", "s", "<s", "<s"};
@@ -74,7 +85,7 @@ public class StringFormatParserTest {
         final String format = "Duke's Birthday: %1$tm %1$te,%1$tY,%1$tz";
 
         //when
-        final String[] result = StringFormatParser.parse(format);
+        final String[] result = stringFormatParser.parse(format);
 
         //then
         final String[] testString = {"1$tm", "1$te", "1$tY", "1$tz"};
@@ -85,27 +96,27 @@ public class StringFormatParserTest {
     public void exceptionUnknownFormat() {
         thrown.expect(UnknownFormatConversionException.class);
         thrown.expectMessage("k");
-        StringFormatParser.parse("unknown format %k");
+        stringFormatParser.parse("unknown format %k");
 
         thrown.expect(UnknownFormatConversionException.class);
-        StringFormatParser.parse("unknown format %");
+        stringFormatParser.parse("unknown format %");
     }
     
     @Test
     public void exceptionIllegalFormat() {
         thrown.expect(IllegalFormatPrecisionException.class);
-        StringFormatParser.parse("illegal format %.2d");
+        stringFormatParser.parse("illegal format %.2d");
     }
     
     @Test
     public void exceptionFormatFlags() {
         thrown.expect(FormatFlagsConversionMismatchException.class);
-        StringFormatParser.parse("format flags %#b");
+        stringFormatParser.parse("format flags %#b");
     }
     
     @Test
     public void exceptionMissingWidth() {
         thrown.expect(MissingFormatWidthException.class);
-        StringFormatParser.parse("%-o");
+        stringFormatParser.parse("%-o");
     }
 }

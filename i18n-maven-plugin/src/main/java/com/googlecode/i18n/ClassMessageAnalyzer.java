@@ -16,12 +16,11 @@ import org.apache.maven.plugin.logging.Log;
 import com.googlecode.i18n.annotations.MessageFormatted;
 import com.googlecode.i18n.annotations.MessageProvider;
 import com.googlecode.i18n.annotations.StringFormatted;
+import com.googlecode.i18n.format.FormatAnalyzer;
 import com.googlecode.i18n.format.FormatType;
-import com.googlecode.i18n.format.MessageFormatAnalyzer;
-import com.googlecode.i18n.format.StringFormatAnalyzer;
 
 /**
- * Localization checker for keys defined in classes. 
+ * Localization checker for keys defined in classes.
  */
 public final class ClassMessageAnalyzer extends AbstractMessageAnalyzer {
 
@@ -30,7 +29,7 @@ public final class ClassMessageAnalyzer extends AbstractMessageAnalyzer {
     private final ClassLoader classLoader;
 
     private ClassMessageAnalyzer(Log log, String locales, ClassLoader classLoader) {
-        super(log, locales);
+        super(log, locales, null);
 
         this.classLoader = classLoader;
     }
@@ -46,7 +45,7 @@ public final class ClassMessageAnalyzer extends AbstractMessageAnalyzer {
      * @param classesPath directory with classes
      * @param locales     list of supported locales
      * @param parent      parent class loader
-     * @return            analyzer object, that contains count of found errors and warnings
+     * @return            messageAnalyzer object, that contains count of found errors and warnings
      */
     public static ClassMessageAnalyzer check(Log log, String classesPath, String locales,
             ClassLoader parent) {
@@ -207,7 +206,7 @@ public final class ClassMessageAnalyzer extends AbstractMessageAnalyzer {
      * @param keys          messages info
      */
     private void checkClass(String className, Map<String, FormatType> keys) throws IOException {
-        // checking class
+        final Log log = getLog();
         log.info("Checking " + className);
         
         // path to property files
@@ -216,10 +215,9 @@ public final class ClassMessageAnalyzer extends AbstractMessageAnalyzer {
 
         final int depth = 1;
         final String indent = indent(depth);
-        final StringFormatAnalyzer strAnalizer = new StringFormatAnalyzer(this);
-        final MessageFormatAnalyzer msgAnalizer = new MessageFormatAnalyzer(this);
+        final FormatAnalyzer stringFormat = new FormatAnalyzer(this, STRING_FORMAT_PARSER);
+        final FormatAnalyzer messageFormat = new FormatAnalyzer(this, MESSAGE_FORMAT_PARSER);
         
-        // Load property files for checking enum
         for (final String file : propFiles) {
             final String propsName = file.substring(file.lastIndexOf('/') + 1);
             final InputStream is = classLoader.getResourceAsStream(file);
@@ -228,23 +226,18 @@ public final class ClassMessageAnalyzer extends AbstractMessageAnalyzer {
                 incrementError();
                 continue;
             }
-            
-            log.info(indent + "Checking " + propsName);
 
-            final Properties props = loadProperties(is);
-            strAnalizer.check(depth + 1, props, keys);
-            msgAnalizer.check(depth + 1, props, keys);
-            checkProperties(depth, props, keys);
+            try {
+                log.info(indent + "Checking " + propsName);
+
+                final Properties props = loadProperties(is);
+                stringFormat.check(depth + 1, props, keys);
+                messageFormat.check(depth + 1, props, keys);
+                checkProperties(depth, props, keys);
+
+            } finally {
+                is.close();
+            }
         }
-    }
-
-    private List<String> getPropertiesFiles(final String baseFilePath) {
-        final List<String> propFiles = new ArrayList<String>();
-        propFiles.add(baseFilePath + PROP_EXT);
-        for (final String locale : locales) {
-            propFiles.add(baseFilePath + "_" + locale + PROP_EXT);
-        }
-
-        return propFiles;
     }
 }

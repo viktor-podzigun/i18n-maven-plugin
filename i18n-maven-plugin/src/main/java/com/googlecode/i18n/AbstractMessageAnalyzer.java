@@ -4,16 +4,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import org.apache.maven.plugin.logging.Log;
 import com.googlecode.i18n.format.FormatType;
+import com.googlecode.i18n.format.MessageFormatParser;
+import com.googlecode.i18n.format.StringFormatParser;
 
 public abstract class AbstractMessageAnalyzer {
 
-    protected final static String PROP_EXT = ".properties";
+    protected static final MessageFormatParser MESSAGE_FORMAT_PARSER = new MessageFormatParser();
+    protected static final StringFormatParser STRING_FORMAT_PARSER = new StringFormatParser();
+
+    private final static String PROP_EXT = ".properties";
 
     private final static int INDENT_SIZE = 2;
     private final static String INDENT_CHARS = "                                         ";
@@ -21,21 +28,31 @@ public abstract class AbstractMessageAnalyzer {
     private final static String MISSING_KEY = "Missing key [%s]";
     private final static String MISSING_VALUE = "Missing value [%s]";
 
-    protected final Log log;
-    protected final String[] locales;
+    private final Log log;
+    private final String[] locales;
+    private final String baseLocale;
 
     private int errorCount;
     private int warningCount;
 
-    protected AbstractMessageAnalyzer(final Log log, final String locales) {
+    protected AbstractMessageAnalyzer(final Log log, final String locales, String baseLocale) {
         this.log = log;
 
-        // convert locales to array
-        if (locales != null && !locales.isEmpty()) {
-            this.locales = locales.split(",");
-        } else {
-            this.locales = new String[0];
+        baseLocale = (baseLocale != null ? baseLocale.trim() : "");
+
+        final List<String> localesList = new ArrayList<String>();
+        if (locales != null) {
+            // split and trim locales
+            for (String locale : locales.split(",")) {
+                locale = locale.trim();
+                if (!locale.isEmpty() && !locale.equals(baseLocale)) {
+                    localesList.add(locale);
+                }
+            }
         }
+
+        this.locales = localesList.toArray(new String[localesList.size()]);
+        this.baseLocale = baseLocale;
     }
 
     /**
@@ -177,6 +194,31 @@ public abstract class AbstractMessageAnalyzer {
                 reader.close();
             }
         }
+    }
+
+    /**
+     * Returns list of properties files based on the specified base file path, list of locales,
+     * and base locale.
+     *
+     * @param baseFilePath  base properties files path
+     * @return              list of properties files
+     */
+    protected List<String> getPropertiesFiles(final String baseFilePath) {
+        final List<String> propFiles = new ArrayList<String>();
+
+        // add base properties file first
+        if (!baseLocale.isEmpty()) {
+            propFiles.add(baseFilePath + "_" + baseLocale + PROP_EXT);
+        } else {
+            propFiles.add(baseFilePath + PROP_EXT);
+        }
+
+        // add all the others based on locales
+        for (final String locale : locales) {
+            propFiles.add(baseFilePath + "_" + locale + PROP_EXT);
+        }
+
+        return propFiles;
     }
 
     /**

@@ -46,7 +46,7 @@ public class ClassMessageAnalyzerTest {
     @Test
     public void warningsOnly() {
         ClassMessageAnalyzer analizer = ClassMessageAnalyzer.check(new SystemStreamLog(),
-                ROOT_PATH + WARNINGS_PATH, "ru,ua", getClass().getClassLoader());
+                ROOT_PATH + WARNINGS_PATH, " ,ru, ua", getClass().getClassLoader());
 
         assertThat(analizer.getWarningCount(), is(2));
     }
@@ -54,7 +54,7 @@ public class ClassMessageAnalyzerTest {
     @Test
     public void errorsOnly() {
         ClassMessageAnalyzer analizer = ClassMessageAnalyzer.check(new SystemStreamLog(),
-                ROOT_PATH + ERRORS_PATH, "ru,ua,pl", getClass().getClassLoader());
+                ROOT_PATH + ERRORS_PATH, " ru, , ua,pl", getClass().getClassLoader());
 
         assertThat(analizer.getErrorCount(), is(4));
     }
@@ -62,7 +62,7 @@ public class ClassMessageAnalyzerTest {
     @Test
     public void dynamic() {
         ClassMessageAnalyzer analizer = ClassMessageAnalyzer.check(new SystemStreamLog(),
-                ROOT_PATH + DYNAMIC_PATH, "", getClass().getClassLoader());
+                ROOT_PATH + DYNAMIC_PATH, " ", getClass().getClassLoader());
 
         assertThat(analizer.getWarningCount(), is(2));
         assertThat(analizer.getErrorCount(), is(0));
@@ -86,7 +86,7 @@ public class ClassMessageAnalyzerTest {
     @Test    
     public void formattedMessage() {
         ClassMessageAnalyzer analizer = ClassMessageAnalyzer.check(new SystemStreamLog(),
-                ROOT_PATH + FORMAT_MSG_PATH, "ru,ua", getClass().getClassLoader());
+                ROOT_PATH + FORMAT_MSG_PATH, " ru,ua ", getClass().getClassLoader());
 
         assertThat(analizer.getErrorCount(), is(6));
         assertThat(analizer.getWarningCount(), is(2));

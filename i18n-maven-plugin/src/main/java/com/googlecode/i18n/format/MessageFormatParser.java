@@ -12,15 +12,18 @@ import java.util.List;
  * returns:
  * <blockquote>[0,number, 1,time]</blockquote>
  */
-public final class MessageFormatParser {
-    
-    private final List<String>  result = new ArrayList<String>();
+public final class MessageFormatParser extends AbstractFormatParser {
 
-    public static String[] parse(String pattern) {
-        MessageFormatParser parser = new MessageFormatParser();
-        parser.applyPattern(pattern);
+    @Override
+    public FormatType getFormatType() {
+        return FormatType.MESSAGE;
+    }
+
+    @Override
+    public String[] parse(String pattern) {
+        final List<String> result = applyPattern(pattern);
         
-        return parser.result.toArray(new String[parser.result.size()]);
+        return result.toArray(new String[result.size()]);
     }
        
     /**
@@ -33,12 +36,14 @@ public final class MessageFormatParser {
      * @param pattern the pattern for this message format
      * @exception IllegalArgumentException if the pattern is invalid
      */
-    private void applyPattern(String pattern) {
+    private List<String> applyPattern(String pattern) {
         StringBuffer[] segments = new StringBuffer[4];
         for (int i = 0; i < segments.length; ++i) {
             segments[i] = new StringBuffer();
         }
-        
+
+        final List<String> result = new ArrayList<String>();
+
         int part = 0;
         //int formatNumber = 0;
         boolean inQuote = false;    // in ''
@@ -80,7 +85,7 @@ public final class MessageFormatParser {
                     if (braceStack == 0) {
                         part = 0;
                         
-                        addFormat(segments);
+                        addFormat(result, segments);
                         //formatNumber++;
                     } else {
                         --braceStack;
@@ -101,6 +106,8 @@ public final class MessageFormatParser {
             throw new IllegalArgumentException(
                     "Unmatched braces in the pattern");
         }
+
+        return result;
     }
     
     /**
@@ -109,7 +116,7 @@ public final class MessageFormatParser {
      * 
      * @param segments array with message and format
      */
-    private void addFormat(StringBuffer[] segments) {
+    private void addFormat(final List<String> result, final StringBuffer[] segments) {
         // get the argument number
         int argumentNumber;
         try {
@@ -135,7 +142,7 @@ public final class MessageFormatParser {
                     + formatType + "'");
         }
         
-        this.result.add(argumentNumber + "," + formatType);
+        result.add(argumentNumber + "," + formatType);
         
         segments[1].setLength(0);   // throw away other segments
         segments[2].setLength(0);
