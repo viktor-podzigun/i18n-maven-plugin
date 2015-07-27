@@ -197,28 +197,42 @@ public abstract class AbstractMessageAnalyzer {
     }
 
     /**
-     * Returns list of properties files based on the specified base file path, list of locales,
-     * and base locale.
+     * Returns list of properties files' paths based on the specified base file path,
+     * list of locales, and base locale.
      *
      * @param baseFilePath  base properties files path
-     * @return              list of properties files
+     * @return              list of properties files' paths
      */
     protected List<String> getPropertiesFiles(final String baseFilePath) {
         final List<String> propFiles = new ArrayList<String>();
 
         // add base properties file first
-        if (!baseLocale.isEmpty()) {
-            propFiles.add(baseFilePath + "_" + baseLocale + PROP_EXT);
-        } else {
-            propFiles.add(baseFilePath + PROP_EXT);
-        }
+        propFiles.add(getBasePropertiesFile(baseFilePath));
+
+        final boolean isDir = baseFilePath.endsWith("/");
 
         // add all the others based on locales
         for (final String locale : locales) {
-            propFiles.add(baseFilePath + "_" + locale + PROP_EXT);
+            propFiles.add(baseFilePath + (isDir ? "" : "_") + locale + PROP_EXT);
         }
 
         return propFiles;
+    }
+
+    /**
+     * Returns resolved properties file path for base locale for the specified base path.
+     *
+     * @param baseFilePath  base properties files path
+     * @return              properties file path for base locale
+     */
+    protected String getBasePropertiesFile(final String baseFilePath) {
+        if (!baseLocale.isEmpty()) {
+            final boolean isDir = baseFilePath.endsWith("/");
+
+            return baseFilePath + (isDir ? "" : "_") + baseLocale + PROP_EXT;
+        }
+
+        return baseFilePath + PROP_EXT;
     }
 
     /**

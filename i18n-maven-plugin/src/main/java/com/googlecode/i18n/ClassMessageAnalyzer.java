@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -47,8 +48,8 @@ public final class ClassMessageAnalyzer extends AbstractMessageAnalyzer {
      * @param parent      parent class loader
      * @return            messageAnalyzer object, that contains count of found errors and warnings
      */
-    public static ClassMessageAnalyzer check(Log log, String classesPath, String locales,
-            ClassLoader parent) {
+    public static ClassMessageAnalyzer check(final Log log, final String classesPath,
+            final String locales, final ClassLoader parent) {
 
         final File dir = new File(classesPath);
         if (!dir.isDirectory()) {
@@ -175,14 +176,30 @@ public final class ClassMessageAnalyzer extends AbstractMessageAnalyzer {
      * @param clazz     localized enum, that contains messages
      * @return          list of messages ids
      */
-    private List<String> getClassDynamicMessages(Class<Enum<?>> clazz) {
-        List<String> result = null;
+    private List<String> getClassDynamicMessages(final Class<Enum<?>> clazz) {
         try {
             final Method getKeys = clazz.getMethod("i18nMessages");
-        
+            if (!Modifier.isStatic(getKeys.getModifiers())) {
+                reportError("", "Defined %s.i18nMessages method is not static", clazz.getName());
+                return Collections.emptyList();
+            }
+
+            final Object result = getKeys.invoke(null);
+            if (result == null) {
+                reportError("", "Defined %s.i18nMessages method returns null", clazz.getName());
+                return Collections.emptyList();
+            }
+
+            if (!(result instanceof List)) {
+                reportError("", "Defined %s.i18nMessages method" +
+                        "\n\treturns:  %s" +
+                        "\n\texpected: %s", clazz.getName(), result.getClass(), List.class);
+                return Collections.emptyList();
+            }
+
             @SuppressWarnings("unchecked")
-            final List<String> keys = (List<String>) getKeys.invoke(null);
-            result = keys;
+            final List<String> keys = (List<String>) result;
+            return keys;
 
         } catch (NoSuchMethodException x) {
             // we expects this
@@ -190,11 +207,7 @@ public final class ClassMessageAnalyzer extends AbstractMessageAnalyzer {
             throw new RuntimeException(x);
         }
 
-        if (result == null) {
-            return Collections.emptyList();
-        }
-
-        return result;
+        return Collections.emptyList();
     }
 
     /** 

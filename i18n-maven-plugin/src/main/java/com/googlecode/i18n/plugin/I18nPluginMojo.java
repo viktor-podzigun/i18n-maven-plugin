@@ -13,8 +13,10 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import com.googlecode.i18n.AbstractMessageAnalyzer;
 import com.googlecode.i18n.ClassMessageAnalyzer;
 import com.googlecode.i18n.ClassHelpers;
+import com.googlecode.i18n.PlainMessageAnalyzer;
 
 /**
  * i18n-maven-plugin entry point.
@@ -30,14 +32,23 @@ public class I18nPluginMojo extends AbstractMojo {
     @Parameter(property = "maven.test.skip", defaultValue = "false")
     private boolean isTestDisabled;
     
-    @Parameter(property = "i18n.locales", defaultValue = "")
-    private String locales;
-    
     @Parameter(property = "project.build.outputDirectory")
     private String dir;
     
     @Parameter(property = "project")
     private MavenProject project;
+
+    @Parameter(property = "i18n.locales", defaultValue = "")
+    private String locales;
+
+    @Parameter(property = "i18n.baseLocale", defaultValue = "")
+    private String baseLocale;
+
+    @Parameter(property = "i18n.plainFilePath", defaultValue = "")
+    private String plainFilePath;
+
+    @Parameter(property = "i18n.formatType", defaultValue = "")
+    private String formatType;
 
     @Override
     public void execute() throws MojoExecutionException {
@@ -54,19 +65,17 @@ public class I18nPluginMojo extends AbstractMojo {
         log.debug("Dependencies:");
         
         @SuppressWarnings("unchecked")
-        Set<Artifact> dependencies = project.getArtifacts();
+        Set<Artifact> artifacts = project.getArtifacts();
         
-        List<File> deps = new ArrayList<File>();
-        for (Artifact a : dependencies) {
+        List<File> dependencies = new ArrayList<File>();
+        for (Artifact a : artifacts) {
             if ("jar".equals(a.getType().toLowerCase())) {
                 log.debug(a.getFile().toString());
-                deps.add(a.getFile());
+                dependencies.add(a.getFile());
             }
         }
-        
-        ClassMessageAnalyzer classAnalyzer = ClassMessageAnalyzer.check(log, dir, locales,
-                ClassHelpers.createClassLoader(getClass().getClassLoader(),
-                        deps.toArray(new File[deps.size()])));
+
+        AbstractMessageAnalyzer classAnalyzer = createAnalyzer(log, dependencies);
 
         log.info("");
         log.info("Check results:");
@@ -77,5 +86,16 @@ public class I18nPluginMojo extends AbstractMojo {
             throw new MojoExecutionException(
                     "Errors were found in localization");
         }
+    }
+
+    private AbstractMessageAnalyzer createAnalyzer(final Log log, final List<File> dependencies) {
+        if (plainFilePath != null && !plainFilePath.isEmpty()) {
+            return PlainMessageAnalyzer.check(log, dir, locales, baseLocale,
+                    plainFilePath, formatType);
+        }
+
+        return ClassMessageAnalyzer.check(log, dir, locales,
+                ClassHelpers.createClassLoader(getClass().getClassLoader(),
+                        dependencies.toArray(new File[dependencies.size()])));
     }
 }

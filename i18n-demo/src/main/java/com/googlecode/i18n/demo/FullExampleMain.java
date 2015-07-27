@@ -5,7 +5,7 @@ import java.text.MessageFormat;
 import java.util.Locale;
 
 
-public final class FullExampleTest {
+public final class FullExampleMain {
 
     public static void main(String[] args) {
         Locale.setDefault(new Locale("en"));
