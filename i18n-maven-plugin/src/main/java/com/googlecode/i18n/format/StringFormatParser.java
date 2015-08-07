@@ -1,5 +1,4 @@
-
-package com.googlecode.i18n;
+package com.googlecode.i18n.format;
 
 import java.util.ArrayList;
 import java.util.DuplicateFormatFlagsException;
@@ -14,7 +13,6 @@ import java.util.UnknownFormatFlagsException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 /**
  * Parses <code>String.format()</code>.
  * 
@@ -23,14 +21,38 @@ import java.util.regex.Pattern;
  * returns
  * <blockquote>[%s, %d]</blockquote>
  */
-public final class StringFormatParser {
+public final class StringFormatParser extends AbstractFormatParser {
     
     // %[argument_index$][flags][width][.precision][t]conversion
     private static Pattern fsPattern = Pattern.compile(
             "%(\\d+\\$)?([-#+ 0,(\\<]*)?(\\d+)?(\\.\\d+)?([tT])?([a-zA-Z%])");
 
-    
-    private StringFormatParser() {
+    @Override
+    public FormatType getFormatType() {
+        return FormatType.STRING;
+    }
+
+    @Override
+    public String[] parse(String format) {
+        List<String> list = new ArrayList<String>();
+
+        for (FormatString fs : parseFormat(format)) {
+            switch (fs.index()) {
+            case -2: // fixed string, "%n", or "%%"
+                continue;
+            case -1: // relative index
+                list.add(fs.toString());
+                break;
+            case 0: // ordinary index
+                list.add(fs.toString());
+                break;
+            default: // explicit index
+                list.add(fs.toString());
+                break;
+            }
+        }
+
+        return list.toArray(new String[list.size()]);
     }
 
     // Look for format specifiers in the format string.
@@ -66,7 +88,8 @@ public final class StringFormatParser {
                 break;
             }
         }
-        return (FormatString[]) al.toArray(new FormatString[0]);
+
+        return al.toArray(new FormatString[al.size()]);
     }
 
     private void checkText(String s) {
@@ -653,28 +676,5 @@ public final class StringFormatParser {
                 return false;
             }
         }
-    }
-
-    public static String[] parse(String format) {
-        List<String> list = new ArrayList<String>();
-        StringFormatParser fp = new StringFormatParser();
-
-        for (FormatString fs : fp.parseFormat(format)) {
-            switch (fs.index()) {
-            case -2: // fixed string, "%n", or "%%"
-                continue;
-            case -1: // relative index
-                list.add(fs.toString());
-                break;
-            case 0: // ordinary index
-                list.add(fs.toString());
-                break;
-            default: // explicit index
-                list.add(fs.toString());
-                break;
-            }
-        }
-        
-        return list.toArray(new String[list.size()]);
     }
 }
