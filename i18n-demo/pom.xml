@@ -6,13 +6,12 @@
     <parent>
         <groupId>com.googlecode.i18n-maven-plugin</groupId>
         <artifactId>i18n-parent</artifactId>
-        <version>1.0.0</version>
-        <relativePath>../i18n-parent</relativePath>
+        <version>1.1.0-SNAPSHOT</version>
     </parent>
 
     <groupId>com.googlecode.i18n-maven-plugin</groupId>
     <artifactId>i18n-demo</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>${project.artifactId}</name>
@@ -22,7 +21,7 @@
             <plugin>
                 <groupId>com.googlecode.i18n-maven-plugin</groupId>
                 <artifactId>i18n-maven-plugin</artifactId>
-                <version>1.0.1-SNAPSHOT</version>
+                <version>${project.version}</version>
                 <executions>
                     <execution>
                         <id>classes-check</id>
@@ -42,6 +41,15 @@
                     <locales>ru</locales>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     
@@ -49,14 +57,12 @@
         <dependency>
             <groupId>com.googlecode.i18n-maven-plugin</groupId>
             <artifactId>i18n-annotations</artifactId>
-            <version>1.0.0</version>
-            <scope>compile</scope>
-            <optional>true</optional>
+            <version>1.1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.googlecode.i18n-maven-plugin</groupId>
             <artifactId>i18n-util</artifactId>
-            <version>1.0.0</version>
+            <version>1.1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
