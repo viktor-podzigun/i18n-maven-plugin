@@ -55,6 +55,7 @@ NOT_USED=Тест
 ```
 
 ### Example configuration ###
+For full list of configuration parameters, please, refer to [I18nPluginMojo](http://github.com/viktor-podzigun/i18n-maven-plugin/blob/master/i18n-maven-plugin/src/main/java/com/googlecode/i18n/plugin/I18nPluginMojo.java)
 ```
 <!-- pom.xml -->
     <build>
@@ -62,10 +63,26 @@ NOT_USED=Тест
             <plugin>
                 <groupId>com.googlecode.i18n-maven-plugin</groupId>
                 <artifactId>i18n-maven-plugin</artifactId>
-                <version>1.0.0</version>
+                <version>${i18n-maven-plugin.version}</version>
                 <executions>
+                    <!-- You can define either class/source mapped localization check -->
                     <execution>
+                        <id>classes-check</id>
                         <goals><goal>i18n</goal></goals>
+                    </execution>
+                    
+                    <!-- And/Or plain old properties check -->
+                    <execution>
+                        <id>plain-check</id>
+                        <goals><goal>i18n</goal></goals>
+                        <configuration>
+                            <locales>en,ru</locales>
+                            <baseLocale>en</baseLocale>
+                            
+                            <!-- If your properties files looks like "en.properties"
+                                 then this path should ends with "/" -->
+                            <plainFilePath>localization/</plainFilePath>
+                        </configuration>
                     </execution>
                 </executions>
                 <configuration>
@@ -79,10 +96,7 @@ NOT_USED=Тест
         <dependency>
             <groupId>com.googlecode.i18n-maven-plugin</groupId>
             <artifactId>i18n-annotations</artifactId>
-            <version>1.0.0</version>
-            <!-- Don't need this dependency at runtime -->
-            <scope>compile</scope>
-            <optional>true</optional>
+            <version>${i18n-maven-plugin.version}</version>
         </dependency>
     </dependencies>
 ```
@@ -96,3 +110,11 @@ Plugin modules are available on [Maven Central](http://search.maven.org/#search|
 
 ## Code license ##
 [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+
+## Change log ##
+
+### 1.1.0 (future release) ###
+Added plain properties check mode
+
+### 1.0.0 ###
+First release
