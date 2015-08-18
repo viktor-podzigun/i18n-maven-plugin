@@ -4,7 +4,7 @@ The idea is to use some markers in java code (@Annotations) to provide informati
 
 ## Simple example ##
 (here is [FullExample](http://github.com/viktor-podzigun/i18n-maven-plugin/blob/master/i18n-demo/src/main/java/com/googlecode/i18n/demo/FullExample.java)):
-```
+```java
 // Messages.java
 @MessageProvider
 public enum Messages {
@@ -20,14 +20,14 @@ public enum Messages {
 }
 ```
 
-```
+```properties
 # Messages.properties
 HELLO_WORLD=Hello World!
 HELLO_WORLD_MSG=Hello World! My name is {0}
 HELLO_WORLD_STR=Hello World! My name is %s
 ```
 
-```
+```properties
 # Messages_ru.properties
 HELLO_WORLD=Привет Мир!
 HELLO_WORLD_MSG=Привет Мир! Меня зовут {0}
@@ -56,7 +56,7 @@ NOT_USED=Тест
 
 ### Example configuration ###
 For full list of configuration parameters, please, refer to [I18nPluginMojo](http://github.com/viktor-podzigun/i18n-maven-plugin/blob/master/i18n-maven-plugin/src/main/java/com/googlecode/i18n/plugin/I18nPluginMojo.java)
-```
+```xml
 <!-- pom.xml -->
     <build>
         <plugins>
