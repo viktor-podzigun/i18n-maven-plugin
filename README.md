@@ -68,13 +68,11 @@ For full list of configuration parameters, please, refer to [I18nPluginMojo](htt
                     <!-- You can define either class/source mapped localization check -->
                     <execution>
                         <id>classes-check</id>
-                        <goals><goal>i18n</goal></goals>
                     </execution>
                     
                     <!-- And/Or plain old properties check -->
                     <execution>
                         <id>plain-check</id>
-                        <goals><goal>i18n</goal></goals>
                         <configuration>
                             <locales>en,ru</locales>
                             <baseLocale>en</baseLocale>

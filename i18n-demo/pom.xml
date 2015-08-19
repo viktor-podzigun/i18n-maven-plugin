@@ -23,16 +23,20 @@
                 <artifactId>i18n-maven-plugin</artifactId>
                 <version>${project.version}</version>
                 <executions>
+                    <!-- You can define either class/source mapped localization check -->
                     <execution>
                         <id>classes-check</id>
-                        <goals><goal>i18n</goal></goals>
                     </execution>
+
+                    <!-- And/Or plain old properties check -->
                     <execution>
                         <id>plain-check</id>
-                        <goals><goal>i18n</goal></goals>
                         <configuration>
                             <locales>en,ru</locales>
                             <baseLocale>en</baseLocale>
+
+                            <!-- If your properties files looks like "en.properties"
+                                 then this path should ends with "/" -->
                             <plainFilePath>localization/</plainFilePath>
                         </configuration>
                     </execution>
